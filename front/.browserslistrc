@@ -1,8 +1,4 @@
-{
-  "browserslist": [
-    ">0.3%",
-    "not dead",
-    "not op_mini all",
-    "not IE 11"
-  ]
-}
+>0.3%
+not dead
+not op_mini all
+not IE 11
