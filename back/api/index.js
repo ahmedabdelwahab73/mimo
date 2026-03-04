@@ -64,15 +64,20 @@ app.use((err, req, res, next) => {
 // =============================================
 const MONGO_URI = process.env.MONGO_URI;
 
-// Connect to MongoDB
-mongoose.connect(MONGO_URI)
-	.then(() => {
-		console.log('✅ Connected to MongoDB successfully');
-	})
-	.catch((err) => {
-		console.error('❌ MongoDB connection error:');
-		console.error(err.message);
-	});
+if (!MONGO_URI) {
+	console.error('❌ Critical Error: MONGO_URI is not defined in environment variables.');
+	// Don't crash the whole process immediately, but the API won't work correctly
+} else {
+	// Connect to MongoDB
+	mongoose.connect(MONGO_URI)
+		.then(() => {
+			console.log('✅ Connected to MongoDB successfully');
+		})
+		.catch((err) => {
+			console.error('❌ MongoDB connection error:');
+			console.error(err.message);
+		});
+}
 
 // Export the app
 module.exports = app;
