@@ -23,7 +23,7 @@ exports.addImage = async (req, res) => {
 			await CustomPackageImage.updateMany({}, { active: false });
 		}
 
-		const imagePaths = req.files.map(file => '/uploads/' + file.filename);
+		const imagePaths = req.files.map(file => file.path);
 
 		const newGroup = new CustomPackageImage({
 			images: imagePaths,
@@ -52,7 +52,7 @@ exports.editImage = async (req, res) => {
 		}
 
 		if (req.files && req.files.length > 0) {
-			const newImagePaths = req.files.map(file => '/uploads/' + file.filename);
+			const newImagePaths = req.files.map(file => file.path);
 			// Save the newly uploaded URLs to a variable so we can append them later
 			req.newUploadedPaths = newImagePaths;
 		}
@@ -68,14 +68,7 @@ exports.editImage = async (req, res) => {
 
 				// Unlink removed images
 				for (const img of removedImages) {
-					if (img.startsWith('/uploads/')) {
-						const oldImagePath = require('path').join(__dirname, '..', 'public', img);
-						if (fs.existsSync(oldImagePath)) {
-							try { fs.unlinkSync(oldImagePath); } catch (e) { }
-						}
-					} else {
-						await destroyCloudinaryImage(img);
-					}
+					await destroyCloudinaryImage(img);
 				}
 
 				// Set the new base images array
@@ -166,14 +159,7 @@ exports.deleteImage = async (req, res) => {
 		// Delete all image files from the array
 		if (group.images && group.images.length > 0) {
 			for (const img of group.images) {
-				if (img.startsWith('/uploads/')) {
-					const oldImagePath = require('path').join(__dirname, '..', 'public', img);
-					if (fs.existsSync(oldImagePath)) {
-						try { fs.unlinkSync(oldImagePath); } catch (e) { }
-					}
-				} else {
-					await destroyCloudinaryImage(img);
-				}
+				await destroyCloudinaryImage(img);
 			}
 		}
 

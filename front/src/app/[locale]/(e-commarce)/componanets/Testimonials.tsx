@@ -140,7 +140,7 @@ const Testimonials = ({ title, ShareYourExperience }: { title: string, ShareYour
 				</div>
 			)}
 
-			<div className={`${testimonials.length < 4 ? "block min-[1200px]:hidden bg-red-100" : "block"}`}>
+			<div className={`${testimonials.length < 4 ? "block min-[1200px]:hidden" : "block"}`}>
 				<Swiper
 					key={locale} // Re-init swiper when locale changes to fix direction issues
 					modules={[Pagination, Autoplay]}

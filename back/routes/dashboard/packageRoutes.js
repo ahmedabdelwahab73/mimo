@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const Package = require('../../models/Package');
-const { destroyCloudinaryImage } = require('../../middleware/cloudinaryUpload');
-const localUpload = require('../../middleware/localUpload');
+const { createUploadMiddleware, destroyCloudinaryImage } = require('../../middleware/cloudinaryUpload');
 const fs = require('fs');
 
-const packageUpload = localUpload.fields([
+const packageUpload = createUploadMiddleware('packages').fields([
 	{ name: 'default_image', maxCount: 1 },
 	{ name: 'gallery', maxCount: 50 }
 ]);
@@ -46,10 +45,10 @@ router.post('/', packageUpload, async (req, res) => {
 
 		if (req.files) {
 			if (req.files.default_image && req.files.default_image.length > 0) {
-				default_image = '/uploads/' + req.files.default_image[0].filename;
+				default_image = req.files.default_image[0].path;
 			}
 			if (req.files.gallery && req.files.gallery.length > 0) {
-				images = req.files.gallery.map(file => '/uploads/' + file.filename);
+				images = req.files.gallery.map(file => file.path);
 			}
 		}
 
@@ -149,19 +148,12 @@ router.put('/:id', packageUpload, async (req, res) => {
 		if (req.files) {
 			if (req.files.default_image && req.files.default_image.length > 0) {
 				if (pkg.default_image) {
-					if (pkg.default_image.startsWith('/uploads/')) {
-						const oldPath = require('path').join(__dirname, '../../public', pkg.default_image);
-						if (fs.existsSync(oldPath)) {
-							try { fs.unlinkSync(oldPath); } catch (e) { }
-						}
-					} else {
-						await destroyCloudinaryImage(pkg.default_image);
-					}
+					await destroyCloudinaryImage(pkg.default_image);
 				}
-				pkg.default_image = '/uploads/' + req.files.default_image[0].filename;
+				pkg.default_image = req.files.default_image[0].path;
 			}
 			if (req.files.gallery && req.files.gallery.length > 0) {
-				const newGalleryImgs = req.files.gallery.map(f => '/uploads/' + f.filename);
+				const newGalleryImgs = req.files.gallery.map(f => f.path);
 				// limit to 50
 				const totalImgs = pkg.images.concat(newGalleryImgs);
 				pkg.images = totalImgs.slice(0, 50);

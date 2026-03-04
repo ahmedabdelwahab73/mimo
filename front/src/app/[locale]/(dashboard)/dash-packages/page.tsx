@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { Plus, Edit2, Trash2, Package as PackageIcon, Loader2, ImageIcon } from 'lucide-react'
 import PackageModal from './PackageModal';
+import Image from 'next/image'
 import { apiFetch } from '@/app/[locale]/lib/api'
 import { useConfirm } from '../componanets/ConfirmModalContext'
 
@@ -235,11 +236,19 @@ const DashPackages = () => {
 									<tr key={pkg._id} className="hover:bg-primary/5 transition-colors group">
 										<td className="px-6 py-5 sticky right-0 bg-card group-hover:bg-primary/5 transition-colors z-10 shadow-[-5px_0_10px_-5px_var(--border)] border-l border-border/50">
 											<div className="relative w-16 h-16 rounded-xl overflow-hidden border border-border shadow-sm group-hover:scale-105 transition-transform duration-300">
-												<img
-													src={pkg.default_image ? (pkg.default_image.startsWith('/uploads') ? `http://localhost:5000${pkg.default_image}` : pkg.default_image) : null}
-													alt=""
-													className="w-full h-full object-cover"
-												/>
+												{pkg.default_image ? (
+													<Image
+														src={pkg.default_image.startsWith('/uploads') ?
+															`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${pkg.default_image}` : pkg.default_image}
+														alt={pkg['name-ar'] || ''}
+														fill
+														className="w-full h-full object-cover"
+													/>
+												) : (
+													<div className="w-full h-full bg-secondary flex items-center justify-center">
+														<ImageIcon size={20} className="text-foreground/20" />
+													</div>
+												)}
 											</div>
 										</td>
 										<td className="px-6 py-5">
