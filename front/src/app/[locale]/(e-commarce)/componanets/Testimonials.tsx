@@ -102,7 +102,7 @@ const Testimonials = ({ title, ShareYourExperience }: { title: string, ShareYour
 					{item.image ? (
 						<Image
 							src={item.image.startsWith('/uploads')
-								? `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:5000${item.image}`
+								? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${item.image}`
 								: item.image}
 							alt=""
 							width={40}

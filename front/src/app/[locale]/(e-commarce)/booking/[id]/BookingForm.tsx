@@ -61,8 +61,8 @@ const BookingForm: React.FC<BookingFormProps> = ({ packageId: initialPackageId }
 	React.useEffect(() => {
 		const fetchPackages = async () => {
 			try {
-				const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-				const res = await fetch(`http://${hostname}:5000/api/home/packages`, {
+				const base_url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+				const res = await fetch(`${base_url}/api/home/packages`, {
 					headers: {
 						'lang': locale,
 					}
@@ -77,8 +77,8 @@ const BookingForm: React.FC<BookingFormProps> = ({ packageId: initialPackageId }
 
 			if (initialPackageId === 'custom-package') {
 				try {
-					const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-					const res = await fetch(`http://${hostname}:5000/api/custom-packages`, {
+					const base_url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+					const res = await fetch(`${base_url}/api/custom-packages`, {
 						headers: {
 							'lang': locale,
 						}

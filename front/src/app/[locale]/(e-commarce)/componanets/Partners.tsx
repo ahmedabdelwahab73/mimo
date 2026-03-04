@@ -22,8 +22,8 @@ const Partners = () => {
 	useEffect(() => {
 		const fetchPartners = async () => {
 			try {
-				const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-				const res = await fetch(`http://${host}:5000/api/partners`, {
+				const base_url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+				const res = await fetch(`${base_url}/api/partners`, {
 					headers: { 'lang': locale }
 				});
 				if (res.ok) {
@@ -73,7 +73,7 @@ const Partners = () => {
 						<div className="flex items-center justify-center p-4 grayscale hover:grayscale-0 transition-all duration-500 opacity-50 hover:opacity-100">
 							<img
 								src={partner.image.startsWith('/uploads')
-									? `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:5000${partner.image}`
+									? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${partner.image}`
 									: partner.image}
 								alt={partner.title}
 								className="max-h-12 w-auto object-contain"

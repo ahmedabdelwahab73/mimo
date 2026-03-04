@@ -25,8 +25,7 @@ const Aside = () => {
 		const fetchLogo = async () => {
 			try {
 				const base_url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-				const apiBase = typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.hostname}:5000` : base_url;
-				const res = await fetch(`${apiBase}/api/logos`, {
+				const res = await fetch(`${base_url}/api/logos`, {
 					headers: {
 						'lang': locale
 					}
@@ -40,8 +39,8 @@ const Aside = () => {
 
 						if (lightSrc && darkSrc) {
 							setDynamicLogoData({
-								imageLight: lightSrc.startsWith('http') ? lightSrc : `${apiBase}${lightSrc}`,
-								imageDark: darkSrc.startsWith('http') ? darkSrc : `${apiBase}${darkSrc}`
+								imageLight: lightSrc.startsWith('http') ? lightSrc : `${base_url}${lightSrc}`,
+								imageDark: darkSrc.startsWith('http') ? darkSrc : `${base_url}${darkSrc}`
 							});
 						}
 					}
