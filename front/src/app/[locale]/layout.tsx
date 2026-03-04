@@ -5,6 +5,7 @@ import { routing } from '@/i18n/routing';
 import { Open_Sans, Fira_Code, Dancing_Script, Poppins } from "next/font/google";
 import { ThemeWrapper } from "@/components/ThemeWrapper";
 import { cookies } from "next/headers";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import '@/app/[locale]/globals.scss';
 const openSans = Open_Sans({
 	variable: "--font-open-sans",
@@ -83,6 +84,7 @@ export default async function LocaleLayout({
 						{/* </main> */}
 					</ThemeWrapper>
 				</NextIntlClientProvider>
+				<SpeedInsights />
 			</body>
 		</html>
 	);
