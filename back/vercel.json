@@ -2,7 +2,7 @@
   "version": 2,
   "functions": {
     "api/index.js": {
-      "excludeFiles": "{public,uploads,images,*.cache,node_modules/@img/sharp-{darwin,win32,linux,linuxmusl}*,node_modules/@img/sharp-libvips-*}/**"
+      "excludeFiles": "{public/**,uploads/**,images/**,node_modules/@img/sharp-win32-x64/**,node_modules/@img/sharp-darwin-x64/**,node_modules/@img/sharp-linux-arm64/**,node_modules/@img/sharp-libvips-win32-x64/**}"
     }
   },
   "routes": [

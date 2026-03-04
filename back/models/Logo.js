@@ -5,6 +5,7 @@ const logoSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
+	
 	imageDark: {
 		type: String,
 		required: true,
