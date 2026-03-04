@@ -1,0 +1,6 @@
+# Ignore large user-uploaded files to avoid lambda size limits
+.env
+public/uploads
+public/images
+node_modules
+*.md
