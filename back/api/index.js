@@ -27,6 +27,42 @@ app.get('/', (req, res) => {
 app.use(express.static('public'));
 
 // =============================================
+// MongoDB Connection (Serverless Optimization)
+// =============================================
+const MONGO_URI = process.env.MONGO_URI;
+let cachedConnection = null;
+
+const connectDB = async () => {
+	if (cachedConnection && mongoose.connection.readyState === 1) {
+		return cachedConnection;
+	}
+	if (!MONGO_URI) {
+		throw new Error('MONGO_URI is not defined in environment variables');
+	}
+	try {
+		console.log('⏳ Connecting to MongoDB...');
+		cachedConnection = await mongoose.connect(MONGO_URI, {
+			serverSelectionTimeoutMS: 5000,
+		});
+		console.log('✅ Connected to MongoDB successfully');
+		return cachedConnection;
+	} catch (err) {
+		console.error('❌ MongoDB connection error:', err.message);
+		throw err;
+	}
+};
+
+// Database Connection Middleware (Apply before routes)
+app.use(async (req, res, next) => {
+	try {
+		await connectDB();
+		next();
+	} catch (err) {
+		next(err);
+	}
+});
+
+// =============================================
 // PUBLIC ROUTES
 // =============================================
 app.use('/api', langMiddleware);
@@ -58,26 +94,6 @@ app.use((err, req, res, next) => {
 		error: process.env.NODE_ENV === 'development' ? err : {}
 	});
 });
-
-// =============================================
-// MongoDB Connection
-// =============================================
-const MONGO_URI = process.env.MONGO_URI;
-
-if (!MONGO_URI) {
-	console.error('❌ Critical Error: MONGO_URI is not defined in environment variables.');
-	// Don't crash the whole process immediately, but the API won't work correctly
-} else {
-	// Connect to MongoDB
-	mongoose.connect(MONGO_URI)
-		.then(() => {
-			console.log('✅ Connected to MongoDB successfully');
-		})
-		.catch((err) => {
-			console.error('❌ MongoDB connection error:');
-			console.error(err.message);
-		});
-}
 
 // Export the app
 module.exports = app;
