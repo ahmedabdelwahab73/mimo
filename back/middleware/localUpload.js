@@ -3,10 +3,14 @@ const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 
-// Ensure uploads directory exists
+// Ensure uploads directory exists (wrapped in try-catch for read-only environments like Vercel)
 const uploadDir = path.join(__dirname, '..', 'public', 'uploads');
-if (!fs.existsSync(uploadDir)) {
-	fs.mkdirSync(uploadDir, { recursive: true });
+try {
+	if (!fs.existsSync(uploadDir)) {
+		fs.mkdirSync(uploadDir, { recursive: true });
+	}
+} catch (err) {
+	console.warn('⚠️ Warning: Could not create uploads directory. This is expected on Vercel.');
 }
 
 const storage = multer.diskStorage({
