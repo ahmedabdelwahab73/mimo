@@ -1,10 +1,10 @@
 <div align="center">
-  <img src="./front/public/logo2.svg" alt="Mimo Travel" width="200"/>
+  <img src="./front/public/logowhite.png" alt="Mimo Travel" width="200"/>
 
-  # 🌍 Mimo Travel MERN Stack Application
+  # 📸 Mimo Studio - Professional Photography Platform
 
   <p>
-    <strong>A comprehensive travel and tourism agency platform built with Modern Technologies.</strong>
+    <strong>A comprehensive modern platform for booking photography sessions and creating custom image packages.</strong>
   </p>
   
   [![Next.js](https://img.shields.io/badge/Next.js-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
@@ -19,11 +19,13 @@
 ## ✨ Features
 
 *   **🌐 Full Localization:** Seamlessly supports Arabic (RTL) and English (LTR) using `next-intl`.
-*   **🛍️ Custom Packages:** Create, browse, and book diverse travel packages globally.
-*   **dashboard 🛠️ Advanced Admin Dashboard:** A robust backend system to manage packages, users, and bookings efficiently.
-*   **📱 Responsive Design:** Fully responsive and stunning UI built with Next.js, SCSS, and Tailwind CSS v4.
-*   **🔒 Secure Authentication:** Handled in the backend.
-*   **📅 Booking System:** Easy integration for users to book trips with detailed package views.
+*   **� Photography Packages:** Browse curated photography sessions and packages.
+*   **🎨 Custom Packages (Build Your Own):** Users can customize their own photography packages by selecting specific add-ons and services.
+*   **🖼️ Portfolio & Galleries:** Beautiful display of high-quality photographs and previous works.
+*   **🛠️ Advanced Admin Dashboard:** A robust backend system to manage packages, images, reviews, users, and bookings efficiently.
+*   **📱 Responsive Design:** Fully responsive and stunning UI built with Next.js, SCSS, and Tailwind CSS.
+*   **🔒 Secure Authentication:** JWT-based user and admin login.
+*   **📅 Booking System:** Easy integration for users to book photography sessions.
 
 ## 🛠️ Project Architecture
 
