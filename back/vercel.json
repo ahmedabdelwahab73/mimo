@@ -3,15 +3,7 @@
   "builds": [
     {
       "src": "index.js",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": [
-          "models/**",
-          "routes/**",
-          "controllers/**",
-          "middleware/**"
-        ]
-      }
+      "use": "@vercel/node"
     }
   ],
   "routes": [
