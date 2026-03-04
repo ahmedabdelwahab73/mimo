@@ -1,14 +1,14 @@
 {
   "version": 2,
   "functions": {
-    "index.js": {
-      "excludeFiles": "{public,uploads,images,*.cache,node_modules/@img/sharp-libvips-darwin-*,node_modules/@img/sharp-libvips-linux-arm*,node_modules/@img/sharp-libvips-linux-ppc64,node_modules/@img/sharp-libvips-linux-riscv64,node_modules/@img/sharp-libvips-linux-s390x,node_modules/@img/sharp-libvips-linuxmusl-*,node_modules/@img/sharp-darwin-*,node_modules/@img/sharp-linux-arm*,node_modules/@img/sharp-linux-ppc64,node_modules/@img/sharp-linux-riscv64,node_modules/@img/sharp-linux-s390x,node_modules/@img/sharp-linuxmusl-*,node_modules/@img/sharp-win32-*}/**"
+    "api/index.js": {
+      "excludeFiles": "{public,uploads,images,*.cache,node_modules/@img/sharp-{darwin,win32,linux,linuxmusl}*,node_modules/@img/sharp-libvips-*}/**"
     }
   },
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "index.js"
+      "dest": "api/index.js"
     }
   ]
 }
