@@ -1,6 +1,8 @@
 import { Edit2, ImageIcon, Plus, Save, X, Upload } from 'lucide-react'
 import React, { useRef, useState, useEffect } from 'react'
 import StatusToggle from '../componanets/StatusToggle';
+import { compressImage } from '@/utils/imageUtils';
+import ProgressBar from '../componanets/ProgressBar';
 
 type IProps = {
 	setModalOpen: (open: boolean) => void
@@ -17,8 +19,9 @@ const LogoModal = ({ setModalOpen, editingLogo, formData, setFormData, handleSub
 	const [previewLight, setPreviewLight] = useState<string | null>(formData.imageLight || null);
 	const [previewDark, setPreviewDark] = useState<string | null>(formData.imageDark || null);
 	const [errors, setErrors] = useState<{ light?: string; dark?: string }>({});
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	const validateAndSubmit = (e: React.FormEvent) => {
+	const validateAndSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		const newErrors: { light?: string; dark?: string } = {};
 
@@ -35,7 +38,12 @@ const LogoModal = ({ setModalOpen, editingLogo, formData, setFormData, handleSub
 		}
 
 		setErrors({});
-		handleSubmit(e);
+		setIsSubmitting(true);
+		try {
+			await handleSubmit(e);
+		} finally {
+			setIsSubmitting(false);
+		}
 	};
 
 	useEffect(() => {
@@ -52,21 +60,40 @@ const LogoModal = ({ setModalOpen, editingLogo, formData, setFormData, handleSub
 		}
 	}, [formData.imageLight, formData.imageDark]);
 
-	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'light' | 'dark') => {
+	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, type: 'light' | 'dark') => {
 		const file = e.target.files?.[0];
 		if (file) {
-			if (type === 'light') {
-				setFormData({ ...formData, imageLight: file });
-				setErrors(prev => ({ ...prev, light: undefined }));
-				const reader = new FileReader();
-				reader.onloadend = () => setPreviewLight(reader.result as string);
-				reader.readAsDataURL(file);
-			} else {
-				setFormData({ ...formData, imageDark: file });
-				setErrors(prev => ({ ...prev, dark: undefined }));
-				const reader = new FileReader();
-				reader.onloadend = () => setPreviewDark(reader.result as string);
-				reader.readAsDataURL(file);
+			try {
+				// Compress image to max 800px for logos
+				const compressedBlob = await compressImage(file, 800, 800, 0.7);
+				const compressedFile = new File([compressedBlob], file.name, {
+					type: 'image/jpeg',
+					lastModified: Date.now(),
+				});
+
+				if (type === 'light') {
+					setFormData({ ...formData, imageLight: compressedFile });
+					setErrors(prev => ({ ...prev, light: undefined }));
+					const reader = new FileReader();
+					reader.onloadend = () => setPreviewLight(reader.result as string);
+					reader.readAsDataURL(compressedFile);
+				} else {
+					setFormData({ ...formData, imageDark: compressedFile });
+					setErrors(prev => ({ ...prev, dark: undefined }));
+					const reader = new FileReader();
+					reader.onloadend = () => setPreviewDark(reader.result as string);
+					reader.readAsDataURL(compressedFile);
+				}
+			} catch (error) {
+				console.error('Image compression failed:', error);
+				// Fallback to original file if compression fails
+				if (type === 'light') {
+					setFormData({ ...formData, imageLight: file });
+					setErrors(prev => ({ ...prev, light: undefined }));
+				} else {
+					setFormData({ ...formData, imageDark: file });
+					setErrors(prev => ({ ...prev, dark: undefined }));
+				}
 			}
 		}
 	};
@@ -170,6 +197,8 @@ const LogoModal = ({ setModalOpen, editingLogo, formData, setFormData, handleSub
 						</div>
 					</div>
 
+					<ProgressBar isUploading={isSubmitting} />
+
 					<StatusToggle
 						active={formData.active}
 						onChange={(checked) => setFormData({ ...formData, active: checked ? 1 : 0 })}
@@ -180,10 +209,11 @@ const LogoModal = ({ setModalOpen, editingLogo, formData, setFormData, handleSub
 					<div className="pt-6 flex items-center gap-4 border-t border-border mt-6">
 						<button
 							type="submit"
-							className="cursor-pointer flex-1 flex items-center justify-center gap-3 bg-primary text-white py-4 rounded-2xl hover:opacity-95 active:scale-95 transition-all font-black shadow-xl shadow-primary/30"
+							disabled={isSubmitting}
+							className="cursor-pointer flex-1 flex items-center justify-center gap-3 bg-primary text-white py-4 rounded-2xl hover:opacity-95 active:scale-95 transition-all font-black shadow-xl shadow-primary/30 disabled:opacity-50"
 						>
 							<Save size={20} />
-							{editingLogo ? 'حفظ التعديلات' : 'إضافة الآن'}
+							{isSubmitting ? 'جاري الحفظ...' : (editingLogo ? 'حفظ التعديلات' : 'إضافة الآن')}
 						</button>
 						<button
 							type="button"

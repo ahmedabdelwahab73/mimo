@@ -2,6 +2,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Plus, Trash2, ImageIcon, Loader2, X, Upload, Save } from 'lucide-react'
 import { apiFetch } from '@/app/[locale]/lib/api'
+import { compressImage } from '@/utils/imageUtils';
+import ProgressBar from '../componanets/ProgressBar';
 
 interface Partner {
 	_id: string;
@@ -15,6 +17,7 @@ const BrandsManagement = () => {
 	const [modalOpen, setModalOpen] = useState(false)
 	const [formData, setFormData] = useState({ title: '', image: null as File | null })
 	const [preview, setPreview] = useState<string | null>(null)
+	const [isSubmitting, setIsSubmitting] = useState(false)
 	const fileInputRef = useRef<HTMLInputElement>(null)
 
 	const fetchPartners = async () => {
@@ -35,13 +38,29 @@ const BrandsManagement = () => {
 		fetchPartners()
 	}, [])
 
-	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0]
 		if (file) {
-			setFormData({ ...formData, image: file })
-			const reader = new FileReader()
-			reader.onloadend = () => setPreview(reader.result as string)
-			reader.readAsDataURL(file)
+			try {
+				// Compress partner logo to 800px
+				const compressedBlob = await compressImage(file, 800, 800, 0.7);
+				const compressedFile = new File([compressedBlob], file.name, {
+					type: 'image/jpeg',
+					lastModified: Date.now(),
+				});
+
+				setFormData({ ...formData, image: compressedFile })
+				const reader = new FileReader()
+				reader.onloadend = () => setPreview(reader.result as string)
+				reader.readAsDataURL(compressedFile)
+			} catch (error) {
+				console.error('Partner logo compression failed:', error);
+				// Fallback to original file
+				setFormData({ ...formData, image: file })
+				const reader = new FileReader()
+				reader.onloadend = () => setPreview(reader.result as string)
+				reader.readAsDataURL(file)
+			}
 		}
 	}
 
@@ -49,6 +68,7 @@ const BrandsManagement = () => {
 		e.preventDefault()
 		if (!formData.image) return alert('يرجى اختيار صورة')
 
+		setIsSubmitting(true)
 		const body = new FormData()
 		body.append('title', formData.title)
 		body.append('image', formData.image)
@@ -70,6 +90,8 @@ const BrandsManagement = () => {
 		} catch (error: any) {
 			console.error('Error adding partner:', error)
 			alert(error.message || 'حدث خطأ غير متوقع');
+		} finally {
+			setIsSubmitting(false)
 		}
 	}
 
@@ -171,13 +193,17 @@ const BrandsManagement = () => {
 								</div>
 								<input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
 							</div>
+
+							<ProgressBar isUploading={isSubmitting} />
+
 							<div className="pt-6 border-t border-border/50 flex items-center gap-4 w-full">
 								<button
 									type="submit"
-									className="cursor-pointer flex-1 flex items-center justify-center gap-3 bg-primary text-white py-4 rounded-2xl hover:opacity-95 active:scale-95 transition-all font-black shadow-xl shadow-primary/30"
+									disabled={isSubmitting}
+									className="cursor-pointer flex-1 flex items-center justify-center gap-3 bg-primary text-white py-4 rounded-2xl hover:opacity-95 active:scale-95 transition-all font-black shadow-xl shadow-primary/30 disabled:opacity-50"
 								>
 									<Save size={20} />
-									حفظ الآن
+									{isSubmitting ? 'جاري الحفظ...' : 'حفظ الآن'}
 								</button>
 								<button
 									type="button"

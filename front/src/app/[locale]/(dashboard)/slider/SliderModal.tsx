@@ -1,6 +1,8 @@
 import { Edit2, ImageIcon, Plus, Save, X, Upload } from 'lucide-react'
 import React, { useRef, useState, useEffect } from 'react'
 import StatusToggle from '../componanets/StatusToggle';
+import { compressImage } from '@/utils/imageUtils';
+import ProgressBar from '../componanets/ProgressBar';
 
 type IProps = {
 	setModalOpen: (open: boolean) => void
@@ -26,15 +28,33 @@ const SliderModal = ({ setModalOpen, editingSlider, formData, setFormData, handl
 		}
 	}, [formData.image]);
 
-	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (file) {
-			setFormData({ ...formData, image: file });
-			const reader = new FileReader();
-			reader.onloadend = () => {
-				setPreviewUrl(reader.result as string);
-			};
-			reader.readAsDataURL(file);
+			try {
+				// Compress slider image to max 1920x1080
+				const compressedBlob = await compressImage(file, 1920, 1080, 0.8);
+				const compressedFile = new File([compressedBlob], file.name, {
+					type: 'image/jpeg',
+					lastModified: Date.now(),
+				});
+
+				setFormData({ ...formData, image: compressedFile });
+				const reader = new FileReader();
+				reader.onloadend = () => {
+					setPreviewUrl(reader.result as string);
+				};
+				reader.readAsDataURL(compressedFile);
+			} catch (error) {
+				console.error('Image compression failed:', error);
+				// Fallback to original file
+				setFormData({ ...formData, image: file });
+				const reader = new FileReader();
+				reader.onloadend = () => {
+					setPreviewUrl(reader.result as string);
+				};
+				reader.readAsDataURL(file);
+			}
 		}
 	};
 
@@ -118,6 +138,8 @@ const SliderModal = ({ setModalOpen, editingSlider, formData, setFormData, handl
 						</div>
 					</div>
 
+					<ProgressBar isUploading={isSubmitting} />
+
 					<StatusToggle
 						active={formData.active}
 						onChange={(checked) => setFormData({ ...formData, active: checked ? 1 : 0 })}
@@ -128,10 +150,11 @@ const SliderModal = ({ setModalOpen, editingSlider, formData, setFormData, handl
 					<div className="pt-6 flex items-center gap-4">
 						<button
 							type="submit"
-							className="cursor-pointer flex-1 flex items-center justify-center gap-3 bg-primary text-white py-4 rounded-2xl hover:opacity-95 active:scale-95 transition-all font-black shadow-xl shadow-primary/30"
+							disabled={isSubmitting}
+							className="cursor-pointer flex-1 flex items-center justify-center gap-3 bg-primary text-white py-4 rounded-2xl hover:opacity-95 active:scale-95 transition-all font-black shadow-xl shadow-primary/30 disabled:opacity-50"
 						>
 							<Save size={20} />
-							{editingSlider ? 'حفظ التعديلات' : 'إضافة'}
+							{isSubmitting ? 'جاري الحفظ...' : (editingSlider ? 'حفظ التعديلات' : 'إضافة')}
 						</button>
 						<button
 							type="button"

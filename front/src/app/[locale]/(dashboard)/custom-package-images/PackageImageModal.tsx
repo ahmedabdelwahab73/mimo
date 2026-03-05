@@ -1,6 +1,9 @@
 import React, { useRef } from 'react'
 import { X, Upload, ImageIcon, ImagePlus, Save } from 'lucide-react'
 import StatusToggle from '../componanets/StatusToggle';
+import { compressImage } from '@/utils/imageUtils';
+import ProgressBar from '../componanets/ProgressBar';
+import { useState } from 'react';
 
 interface CustomPackageGroup {
 	_id?: string;
@@ -25,11 +28,41 @@ interface ModalProps {
 const CustomPackageImageModal = ({ setModalOpen, editingGroup, formData, setFormData, handleSubmit }: ModalProps) => {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const onFormSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		setIsSubmitting(true);
+		try {
+			await handleSubmit(e);
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
+
+	const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files && e.target.files.length > 0) {
 			const fileArray = Array.from(e.target.files);
-			setFormData({ ...formData, images: [...formData.images, ...fileArray] })
+			try {
+				const compressedFiles = await Promise.all(
+					fileArray.map(async (file) => {
+						try {
+							const blob = await compressImage(file, 1200, 1200, 0.7);
+							return new File([blob], file.name, {
+								type: 'image/jpeg',
+								lastModified: Date.now(),
+							});
+						} catch (err) {
+							console.error(`Compression failed for ${file.name}`, err);
+							return file;
+						}
+					})
+				);
+				setFormData({ ...formData, images: [...formData.images, ...compressedFiles] });
+			} catch (error) {
+				console.error('Group image compression error:', error);
+				setFormData({ ...formData, images: [...formData.images, ...fileArray] });
+			}
 		}
 	}
 
@@ -74,7 +107,7 @@ const CustomPackageImageModal = ({ setModalOpen, editingGroup, formData, setForm
 					</button>
 				</div>
 
-				<form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto">
+				<form onSubmit={onFormSubmit} className="p-6 space-y-6 overflow-y-auto">
 
 					{/* Images Area */}
 					<div className="space-y-4">
@@ -156,6 +189,8 @@ const CustomPackageImageModal = ({ setModalOpen, editingGroup, formData, setForm
 						/>
 					</div>
 
+					<ProgressBar isUploading={isSubmitting} />
+
 					<StatusToggle
 						active={formData.active}
 						onChange={(checked) => setFormData({ ...formData, active: checked })}
@@ -166,10 +201,11 @@ const CustomPackageImageModal = ({ setModalOpen, editingGroup, formData, setForm
 					<div className="flex items-center gap-4 pt-6 border-t border-border mt-auto">
 						<button
 							type="submit"
-							className="cursor-pointer flex-1 flex items-center justify-center gap-3 bg-primary text-white py-4 rounded-2xl hover:opacity-95 active:scale-95 transition-all font-black shadow-xl shadow-primary/30"
+							disabled={isSubmitting}
+							className="cursor-pointer flex-1 flex items-center justify-center gap-3 bg-primary text-white py-4 rounded-2xl hover:opacity-95 active:scale-95 transition-all font-black shadow-xl shadow-primary/30 disabled:opacity-50"
 						>
 							<Save size={20} />
-							{editingGroup ? 'تعديل' : `حفظ`}
+							{isSubmitting ? 'جاري الحفظ...' : (editingGroup ? 'تعديل' : `حفظ`)}
 						</button>
 						<button
 							type="button"
