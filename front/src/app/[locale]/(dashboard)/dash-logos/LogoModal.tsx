@@ -16,6 +16,27 @@ const LogoModal = ({ setModalOpen, editingLogo, formData, setFormData, handleSub
 
 	const [previewLight, setPreviewLight] = useState<string | null>(formData.imageLight || null);
 	const [previewDark, setPreviewDark] = useState<string | null>(formData.imageDark || null);
+	const [errors, setErrors] = useState<{ light?: string; dark?: string }>({});
+
+	const validateAndSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		const newErrors: { light?: string; dark?: string } = {};
+
+		if (!formData.imageLight) {
+			newErrors.light = 'يرجى اختيار صورة للوضع المضيء';
+		}
+		if (!formData.imageDark) {
+			newErrors.dark = 'يرجى اختيار صورة للوضع المظلم';
+		}
+
+		if (Object.keys(newErrors).length > 0) {
+			setErrors(newErrors);
+			return;
+		}
+
+		setErrors({});
+		handleSubmit(e);
+	};
 
 	useEffect(() => {
 		if (typeof formData.imageLight === 'string' && formData.imageLight.startsWith('http')) {
@@ -36,11 +57,13 @@ const LogoModal = ({ setModalOpen, editingLogo, formData, setFormData, handleSub
 		if (file) {
 			if (type === 'light') {
 				setFormData({ ...formData, imageLight: file });
+				setErrors(prev => ({ ...prev, light: undefined }));
 				const reader = new FileReader();
 				reader.onloadend = () => setPreviewLight(reader.result as string);
 				reader.readAsDataURL(file);
 			} else {
 				setFormData({ ...formData, imageDark: file });
+				setErrors(prev => ({ ...prev, dark: undefined }));
 				const reader = new FileReader();
 				reader.onloadend = () => setPreviewDark(reader.result as string);
 				reader.readAsDataURL(file);
@@ -74,7 +97,7 @@ const LogoModal = ({ setModalOpen, editingLogo, formData, setFormData, handleSub
 					</button>
 				</div>
 
-				<form onSubmit={handleSubmit} className="p-8 space-y-5 text-right">
+				<form onSubmit={validateAndSubmit} className="p-8 space-y-5 text-right">
 					<div className="grid grid-cols-2 gap-4">
 						<div className="space-y-4">
 							<label className="text-xs font-black text-muted-foreground/80 mr-1 uppercase tracking-wider">لوجو الوضع المضيء (Light)</label>
@@ -83,7 +106,7 @@ const LogoModal = ({ setModalOpen, editingLogo, formData, setFormData, handleSub
 								className="relative group cursor-pointer"
 							>
 								{/* Changed background from bg-gray-100 to bg-gray-300 to show white logos better */}
-								<div className={`w-full aspect-video rounded-2xl border-2 border-dashed ${previewLight ? 'border-primary/50' : 'border-border'} hover:border-primary transition-all overflow-hidden flex flex-col items-center justify-center bg-gray-300 dark:bg-gray-400`}>
+								<div className={`w-full aspect-video rounded-2xl border-2 border-dashed ${errors.light ? 'border-red-500 bg-red-50/50' : (previewLight ? 'border-primary/50' : 'border-border')} hover:border-primary transition-all overflow-hidden flex flex-col items-center justify-center bg-gray-300 dark:bg-gray-400`}>
 									{previewLight ? (
 										<>
 											<img src={previewLight} alt="Preview Light" className="w-full h-full object-contain p-4" />
@@ -92,12 +115,15 @@ const LogoModal = ({ setModalOpen, editingLogo, formData, setFormData, handleSub
 											</div>
 										</>
 									) : (
-										<div className="flex flex-col items-center gap-2 text-gray-600 group-hover:text-primary transition-colors">
+										<div className={`flex flex-col items-center gap-2 ${errors.light ? 'text-red-500' : 'text-gray-600'} group-hover:text-primary transition-colors`}>
 											<ImageIcon size={40} strokeWidth={1.5} />
 											<span className="text-xs font-bold text-center">اضغط لاختيار<br />صورة اللوجو المضيء</span>
 										</div>
 									)}
 								</div>
+								{errors.light && (
+									<p className="text-red-500 text-[10px] font-bold mt-2 pr-1">{errors.light}</p>
+								)}
 								<input
 									type="file"
 									ref={fileInputLightRef}
@@ -115,7 +141,7 @@ const LogoModal = ({ setModalOpen, editingLogo, formData, setFormData, handleSub
 								className="relative group cursor-pointer"
 							>
 								{/* Changed background from bg-gray-900 to bg-gray-700 to show dark/black logos better */}
-								<div className={`w-full aspect-video rounded-2xl border-2 border-dashed ${previewDark ? 'border-primary/50' : 'border-border'} hover:border-primary transition-all overflow-hidden flex flex-col items-center justify-center bg-gray-700 dark:bg-gray-600`}>
+								<div className={`w-full aspect-video rounded-2xl border-2 border-dashed ${errors.dark ? 'border-red-500 bg-red-50/50' : (previewDark ? 'border-primary/50' : 'border-border')} hover:border-primary transition-all overflow-hidden flex flex-col items-center justify-center bg-gray-700 dark:bg-gray-600`}>
 									{previewDark ? (
 										<>
 											<img src={previewDark} alt="Preview Dark" className="w-full h-full object-contain p-4" />
@@ -124,12 +150,15 @@ const LogoModal = ({ setModalOpen, editingLogo, formData, setFormData, handleSub
 											</div>
 										</>
 									) : (
-										<div className="flex flex-col items-center gap-2 text-gray-300 group-hover:text-primary transition-colors">
+										<div className={`flex flex-col items-center gap-2 ${errors.dark ? 'text-red-500' : 'text-gray-300'} group-hover:text-primary transition-colors`}>
 											<ImageIcon size={40} strokeWidth={1.5} />
 											<span className="text-xs font-bold text-center">اضغط لاختيار<br />صورة اللوجو المظلم</span>
 										</div>
 									)}
 								</div>
+								{errors.dark && (
+									<p className="text-red-500 text-[10px] font-bold mt-2 pr-1">{errors.dark}</p>
+								)}
 								<input
 									type="file"
 									ref={fileInputDarkRef}
