@@ -62,7 +62,13 @@ const LogoModal = ({ setModalOpen, editingLogo, formData, setFormData, handleSub
 				throw error;
 			}
 		}
-		setIsSubmitting(false);
+		if (success) {
+			setIsSubmitting(false);
+			// Give the progress bar 800ms to show the 100% completion state before the modal/parent logic continues
+			await new Promise(resolve => setTimeout(resolve, 800));
+		} else {
+			setIsSubmitting(false);
+		}
 	};
 
 	useEffect(() => {

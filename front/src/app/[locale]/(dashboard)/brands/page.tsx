@@ -107,7 +107,13 @@ const BrandsManagement = () => {
 				break;
 			}
 		}
-		setIsSubmitting(false)
+		if (success) {
+			setIsSubmitting(false);
+			// Give the progress bar 800ms for completion animation before the modal closes
+			await new Promise(resolve => setTimeout(resolve, 800));
+		} else {
+			setIsSubmitting(false);
+		}
 	}
 
 	const handleDelete = async (id: string) => {

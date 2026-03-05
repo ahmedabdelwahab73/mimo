@@ -111,8 +111,14 @@ const SliderModal = ({ setModalOpen, editingSlider, formData, setFormData, handl
 							// handleSubmit in parent might already show a modal, but we re-throw to stop the loop
 							throw error;
 						}
+						if (success) {
+							setIsSubmitting(false);
+							// Give the progress bar 800ms for completion animation before closing
+							await new Promise(resolve => setTimeout(resolve, 800));
+						} else {
+							setIsSubmitting(false);
+						}
 					}
-					setIsSubmitting(false);
 				}} className="p-8 space-y-5 text-right">
 					<div className="space-y-2">
 						<label className="text-xs font-black text-muted-foreground/80 mr-1 uppercase tracking-wider">صورة السلايدر</label>

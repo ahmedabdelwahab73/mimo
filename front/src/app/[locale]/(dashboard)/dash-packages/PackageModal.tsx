@@ -104,7 +104,13 @@ const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, han
 				throw error;
 			}
 		}
-		setIsSubmitting(false)
+		if (success) {
+			setIsSubmitting(false)
+			// Give the progress bar 800ms for completion animation before closing the modal
+			await new Promise(resolve => setTimeout(resolve, 800));
+		} else {
+			setIsSubmitting(false)
+		}
 	}
 
 	const handleAddPoint = () => {

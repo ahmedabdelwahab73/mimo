@@ -12,23 +12,26 @@ const ProgressBar = ({ isUploading, onComplete }: ProgressBarProps) => {
 		let interval: NodeJS.Timeout;
 
 		if (isUploading) {
-			setProgress(0);
+			setProgress(5); // Start at 5% immediately so it's visible
 			// Simulate progress
 			interval = setInterval(() => {
 				setProgress((prev) => {
-					if (prev < 30) return prev + Math.random() * 10;
-					if (prev < 60) return prev + Math.random() * 5;
-					if (prev < 90) return prev + Math.random() * 2;
-					return prev + 0.1; // Slow down near the end
+					if (prev < 30) return prev + Math.random() * 15;
+					if (prev < 60) return prev + Math.random() * 8;
+					if (prev < 90) return prev + Math.random() * 3;
+					if (prev < 98) return prev + 0.5;
+					return prev;
 				});
-			}, 200);
-		} else if (progress > 0) {
-			setProgress(100);
-			const timeout = setTimeout(() => {
-				setProgress(0);
-				if (onComplete) onComplete();
-			}, 500);
-			return () => clearTimeout(timeout);
+			}, 250);
+		} else {
+			if (progress > 0) {
+				setProgress(100);
+				const timeout = setTimeout(() => {
+					setProgress(0);
+					if (onComplete) onComplete();
+				}, 600);
+				return () => clearTimeout(timeout);
+			}
 		}
 
 		return () => {
@@ -36,21 +39,25 @@ const ProgressBar = ({ isUploading, onComplete }: ProgressBarProps) => {
 		};
 	}, [isUploading]);
 
-	if (progress === 0 && !isUploading) return null;
+	// Always show if uploading, even at 0%
+	if (!isUploading && progress === 0) return null;
 
 	return (
-		<div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mb-4 relative">
+		<div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden mb-6 relative shadow-inner">
 			<div
-				className="h-full bg-primary transition-all duration-300 ease-out flex items-center justify-end"
+				className="h-full bg-primary transition-all duration-500 ease-out flex items-center justify-end relative"
 				style={{ width: `${Math.min(progress, 100)}%` }}
 			>
-				<div className="h-full w-4 bg-white/20 animate-pulse" />
+				{/* Animated shine effect */}
+				<div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+
+				<div className="h-full w-8 bg-white/20 blur-sm" />
 			</div>
-			{progress < 100 && (
-				<span className="absolute inset-0 flex items-center justify-center text-[8px] font-black text-primary/40 uppercase tracking-tighter">
-					جاري الرفع... {Math.round(progress)}%
+			<div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+				<span className="text-[10px] font-black text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.4)]">
+					{isUploading ? `جاري الرفع... ${Math.round(progress)}%` : 'تم التحميل بنجاح ✓'}
 				</span>
-			)}
+			</div>
 		</div>
 	);
 };

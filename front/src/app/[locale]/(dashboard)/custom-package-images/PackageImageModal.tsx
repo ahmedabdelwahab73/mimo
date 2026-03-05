@@ -53,7 +53,13 @@ const CustomPackageImageModal = ({ setModalOpen, editingGroup, formData, setForm
 				throw error;
 			}
 		}
-		setIsSubmitting(false);
+		if (success) {
+			setIsSubmitting(false);
+			// Give the progress bar 800ms for completion animation before the modal closes
+			await new Promise(resolve => setTimeout(resolve, 800));
+		} else {
+			setIsSubmitting(false);
+		}
 	};
 
 	const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
