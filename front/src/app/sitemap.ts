@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 
-const baseUrl = 'https://mimo-studio.vercel.app';
+const baseUrl = 'https://mimo-flame.vercel.app';
 const apiUrl = 'https://mimo-back.vercel.app';
 const locales = ['ar', 'en'];
 
