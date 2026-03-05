@@ -68,7 +68,14 @@ exports.editImage = async (req, res) => {
 
 				// Unlink removed images
 				for (const img of removedImages) {
-					await destroyCloudinaryImage(img);
+					if (img.startsWith('/uploads/')) {
+						const oldPath = path.join(__dirname, '..', 'public', img);
+						if (fs.existsSync(oldPath)) {
+							try { fs.unlinkSync(oldPath); } catch (e) { }
+						}
+					} else {
+						await destroyCloudinaryImage(img);
+					}
 				}
 
 				// Set the new base images array
@@ -159,7 +166,14 @@ exports.deleteImage = async (req, res) => {
 		// Delete all image files from the array
 		if (group.images && group.images.length > 0) {
 			for (const img of group.images) {
-				await destroyCloudinaryImage(img);
+				if (img.startsWith('/uploads/')) {
+					const imgPath = path.join(__dirname, '..', 'public', img);
+					if (fs.existsSync(imgPath)) {
+						try { fs.unlinkSync(imgPath); } catch (e) { }
+					}
+				} else {
+					await destroyCloudinaryImage(img);
+				}
 			}
 		}
 

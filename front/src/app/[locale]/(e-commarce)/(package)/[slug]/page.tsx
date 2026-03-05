@@ -16,6 +16,7 @@ type Props = {
 }
 
 const Package = async ({ params }: Props) => {
+	const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 	const t = await getTranslations('');
 	const resolvedParams = await params;
 	const locale = resolvedParams.locale || 'ar';
@@ -34,12 +35,11 @@ const Package = async ({ params }: Props) => {
 	const reqHeaders = await headers();
 	const host = reqHeaders.get('host') || 'localhost:3000';
 	const hostname = host.split(':')[0]; // e.g. '192.168.1.3' or 'localhost'
-	const BACKEND = `http://${hostname}:5000`;
 
 	try {
 		// 1. Fetch current package details
 		if (idStr) {
-			const res = await fetch(`${BACKEND}/api/home/packages/details`, {
+			const res = await fetch(`${apiUrl}/api/home/packages/details`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ const Package = async ({ params }: Props) => {
 
 			if (res.ok) {
 				const data = await res.json();
-				const formatImg = (img: string) => img ? (img.startsWith('/uploads') ? `${BACKEND}${img}` : img) : null;
+				const formatImg = (img: string) => img ? (img.startsWith('/uploads') ? `${apiUrl}${img}` : img) : null;
 
 				packageItem = {
 					id: data._id,
@@ -74,7 +74,7 @@ const Package = async ({ params }: Props) => {
 		}
 
 		// 2. Fetch all packages for the slider
-		const allRes = await fetch(`${BACKEND}/api/home/packages`, {
+		const allRes = await fetch(`${apiUrl}/api/home/packages`, {
 			headers: { 'lang': locale },
 			cache: 'no-store'
 		});
@@ -88,12 +88,12 @@ const Package = async ({ params }: Props) => {
 				price: item.price,
 				offer: item.offer,
 				number: item.number,
-				image: item.default_image ? (item.default_image.startsWith('/uploads') ? `${BACKEND}${item.default_image}` : item.default_image) : null
+				image: item.default_image ? (item.default_image.startsWith('/uploads') ? `${apiUrl}${item.default_image}` : item.default_image) : null
 			}));
 		}
 
 		// 3. Fetch custom package images
-		const customImagesRes = await fetch(`${BACKEND}/api/custom-package-images`, {
+		const customImagesRes = await fetch(`${apiUrl}/api/custom-package-images`, {
 			headers: { 'lang': locale },
 			cache: 'no-store'
 		});
@@ -107,7 +107,7 @@ const Package = async ({ params }: Props) => {
 					}
 				});
 				if (activeImages.length > 0) {
-					customPackageImages = activeImages.map((img: string) => img.startsWith('http') ? img : `${BACKEND}${img}`);
+					customPackageImages = activeImages.map((img: string) => img.startsWith('http') ? img : `${apiUrl}${img}`);
 				}
 			}
 		}
@@ -179,7 +179,7 @@ const Package = async ({ params }: Props) => {
 					DesignYourPackage={t('HomePage.DesignYourPackage')}
 					DesignYourPackageDesc={t('HomePage.DesignYourPackageDesc')}
 					StartDesigning={t('HomePage.StartDesigning')}
-					apiUrl={BACKEND}
+					apiUrl={apiUrl}
 				/>
 			</Container>
 		</div >

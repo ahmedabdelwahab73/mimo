@@ -15,7 +15,6 @@ interface PackageCardProps extends packageCardType {
 
 const PackageCard = ({ item, ViewDetails, priority, locale, isScrollActive = false }: PackageCardProps) => {
 	const t = useTranslations('HomePage');
-	console.log(item.image);
 
 	return (
 		<Link
