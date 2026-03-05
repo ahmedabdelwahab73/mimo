@@ -17,6 +17,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 		icons: {
 			icon: "/small.png",
 		},
+		verification: {
+			google: 'jZm3qvBgkvN62UZ-BagZ9zINJCWdP23sG9FDPnqq1yQ',
+		}
 	};
 }
 
