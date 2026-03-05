@@ -38,12 +38,31 @@ const LogoModal = ({ setModalOpen, editingLogo, formData, setFormData, handleSub
 		}
 
 		setErrors({});
-		setIsSubmitting(true);
-		try {
-			await handleSubmit(e);
-		} finally {
-			setIsSubmitting(false);
+
+		let retries = 3;
+		let success = false;
+
+		while (retries > 0 && !success) {
+			setIsSubmitting(true);
+			try {
+				// We pass the event but we might need to handle the actual fetch here or ensure handleSubmit supports timeout
+				// Since handleSubmit usually handles the fetch, we hope it throws the 'TIMEOUT' error we added to apiFetch
+				await handleSubmit(e);
+				success = true;
+			} catch (error: any) {
+				if (error.message === 'TIMEOUT' && retries > 1) {
+					retries--;
+					console.warn(`Upload timed out. Retrying... (${3 - retries}/3)`);
+					setIsSubmitting(false); // Reset progress bar
+					await new Promise(resolve => setTimeout(resolve, 500)); // Small delay before retry
+					continue;
+				}
+				// If not a timeout or no more retries
+				setIsSubmitting(false);
+				throw error;
+			}
 		}
+		setIsSubmitting(false);
 	};
 
 	useEffect(() => {

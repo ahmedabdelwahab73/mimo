@@ -139,7 +139,8 @@ const SliderManagement = () => {
 
 			const res = await apiFetch(endpoint, {
 				method,
-				body: bodyData
+				body: bodyData,
+				timeout: 60000 // 60 seconds timeout
 			})
 
 			if (!res.ok) {

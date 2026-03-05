@@ -165,7 +165,8 @@ const CustomPackageImageManagement = () => {
 
 			const res = await apiFetch(endpoint, {
 				method: method,
-				body: bodyData
+				body: bodyData,
+				timeout: 60000 // 60 seconds timeout
 			})
 
 			if (!res.ok) {

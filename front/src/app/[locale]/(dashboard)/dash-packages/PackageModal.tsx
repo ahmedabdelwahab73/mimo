@@ -78,18 +78,33 @@ const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, han
 	const onSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
 		if (!validateForm()) return;
-		setIsSubmitting(true)
-		try {
-			await handleSubmit(e)
-		} catch (error: any) {
-			if (error.message && error.message.includes('رقم الترتيب هذا مستخدم بالفعل')) {
-				setErrors(prev => ({ ...prev, sort: error.message }))
-			} else {
-				alert(error.message || 'حدث خطأ أثناء الحفظ')
+
+		let retries = 3;
+		let success = false;
+
+		while (retries > 0 && !success) {
+			setIsSubmitting(true)
+			try {
+				await handleSubmit(e)
+				success = true;
+			} catch (error: any) {
+				if (error.message === 'TIMEOUT' && retries > 1) {
+					retries--;
+					console.warn(`Package upload timed out. Retrying... (${3 - retries}/3)`);
+					setIsSubmitting(false); // Reset progress bar
+					await new Promise(resolve => setTimeout(resolve, 500)); // Small delay before retry
+					continue;
+				}
+				setIsSubmitting(false)
+				if (error.message && error.message.includes('رقم الترتيب هذا مستخدم بالفعل')) {
+					setErrors(prev => ({ ...prev, sort: error.message }))
+				} else if (error.message !== 'TIMEOUT') {
+					alert(error.message || 'حدث خطأ أثناء الحفظ')
+				}
+				throw error;
 			}
-		} finally {
-			setIsSubmitting(false)
 		}
+		setIsSubmitting(false)
 	}
 
 	const handleAddPoint = () => {

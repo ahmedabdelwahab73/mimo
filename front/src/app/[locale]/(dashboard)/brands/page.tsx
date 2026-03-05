@@ -68,31 +68,46 @@ const BrandsManagement = () => {
 		e.preventDefault()
 		if (!formData.image) return alert('يرجى اختيار صورة')
 
-		setIsSubmitting(true)
-		const body = new FormData()
-		body.append('title', formData.title)
-		body.append('image', formData.image)
+		let retries = 3;
+		let success = false;
 
-		try {
-			const res = await apiFetch('/dashboard/partners', {
-				method: 'POST',
-				body
-			})
-			if (res.ok) {
-				setModalOpen(false)
-				setFormData({ title: '', image: null })
-				setPreview(null)
-				fetchPartners()
-			} else {
-				const err = await res.json()
-				alert(err.message || 'فشلت عملية الإضافة')
+		while (retries > 0 && !success) {
+			setIsSubmitting(true)
+			const body = new FormData()
+			body.append('title', formData.title)
+			body.append('image', formData.image)
+
+			try {
+				const res = await apiFetch('/dashboard/partners', {
+					method: 'POST',
+					body,
+					timeout: 60000 // 60 seconds timeout
+				})
+				if (res.ok) {
+					setModalOpen(false)
+					setFormData({ title: '', image: null })
+					setPreview(null)
+					fetchPartners()
+					success = true;
+				} else {
+					const err = await res.json()
+					alert(err.message || 'فشلت عملية الإضافة')
+					break; // Don't retry on non-timeout errors
+				}
+			} catch (error: any) {
+				if (error.message === 'TIMEOUT' && retries > 1) {
+					retries--;
+					console.warn(`Partner upload timed out. Retrying... (${3 - retries}/3)`);
+					setIsSubmitting(false); // Reset progress bar
+					await new Promise(resolve => setTimeout(resolve, 500)); // Small delay before retry
+					continue;
+				}
+				console.error('Error adding partner:', error)
+				alert(error.message || 'حدث خطأ غير متوقع');
+				break;
 			}
-		} catch (error: any) {
-			console.error('Error adding partner:', error)
-			alert(error.message || 'حدث خطأ غير متوقع');
-		} finally {
-			setIsSubmitting(false)
 		}
+		setIsSubmitting(false)
 	}
 
 	const handleDelete = async (id: string) => {

@@ -176,7 +176,8 @@ const DashPackages = () => {
 
 			const res = await apiFetch(endpoint, {
 				method,
-				body: bodyData
+				body: bodyData,
+				timeout: 90000 // 1.5 minutes timeout for large galleries
 			})
 
 			if (!res.ok) {

@@ -90,7 +90,29 @@ const SliderModal = ({ setModalOpen, editingSlider, formData, setFormData, handl
 						return;
 					}
 					setErrors({});
-					await handleSubmit(e);
+
+					let retries = 3;
+					let success = false;
+
+					while (retries > 0 && !success) {
+						setIsSubmitting(true);
+						try {
+							await handleSubmit(e);
+							success = true;
+						} catch (error: any) {
+							if (error.message === 'TIMEOUT' && retries > 1) {
+								retries--;
+								console.warn(`Slider upload timed out. Retrying... (${3 - retries}/3)`);
+								setIsSubmitting(false); // Reset progress bar
+								await new Promise(resolve => setTimeout(resolve, 500)); // Small delay before retry
+								continue;
+							}
+							setIsSubmitting(false);
+							// handleSubmit in parent might already show a modal, but we re-throw to stop the loop
+							throw error;
+						}
+					}
+					setIsSubmitting(false);
 				}} className="p-8 space-y-5 text-right">
 					<div className="space-y-2">
 						<label className="text-xs font-black text-muted-foreground/80 mr-1 uppercase tracking-wider">صورة السلايدر</label>

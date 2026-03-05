@@ -16,7 +16,8 @@ app.use(cors({
 	origin: '*',
 	credentials: true
 }));
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Basic Route
 app.get('/', (req, res) => {
@@ -101,7 +102,7 @@ module.exports = app;
 // Start server only if running locally (not as a Vercel function)
 if (require.main === module || process.env.NODE_ENV !== 'production') {
 	const PORT = process.env.PORT || 5000;
-	app.listen(PORT, () => {
+	const server = app.listen(PORT, () => {
 		console.log(`🚀 Server is running locally on http://localhost:${PORT}`);
 	});
 }

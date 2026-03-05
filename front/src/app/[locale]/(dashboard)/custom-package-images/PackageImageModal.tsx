@@ -32,12 +32,28 @@ const CustomPackageImageModal = ({ setModalOpen, editingGroup, formData, setForm
 
 	const onFormSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setIsSubmitting(true);
-		try {
-			await handleSubmit(e);
-		} finally {
-			setIsSubmitting(false);
+
+		let retries = 3;
+		let success = false;
+
+		while (retries > 0 && !success) {
+			setIsSubmitting(true);
+			try {
+				await handleSubmit(e);
+				success = true;
+			} catch (error: any) {
+				if (error.message === 'TIMEOUT' && retries > 1) {
+					retries--;
+					console.warn(`Gallery upload timed out. Retrying... (${3 - retries}/3)`);
+					setIsSubmitting(false); // Reset progress bar
+					await new Promise(resolve => setTimeout(resolve, 500)); // Small delay before retry
+					continue;
+				}
+				setIsSubmitting(false);
+				throw error;
+			}
 		}
+		setIsSubmitting(false);
 	};
 
 	const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
