@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="./front/public/logowhite.png" alt="Mimo Travel" width="200"/>
+  <img src="./front/public/logowhite.png" alt="Mimo_photography" width="200"/>
 
-  # 📸 Mimo Studio - Professional Photography Platform
+  # 📸 Mimo photography - Professional Photography Platform
 
   <p>
     <strong>A comprehensive modern platform for booking photography sessions and creating custom image packages.</strong>

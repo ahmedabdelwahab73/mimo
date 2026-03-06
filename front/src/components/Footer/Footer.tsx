@@ -9,7 +9,7 @@ import Blacklogo from '@/public/logoblack.png';
 import { useDarkMode } from "@/hooks/useDarkMode";
 import Container from '../Container';
 
-const Footer = () => {
+const Footer = ({ logoData }: { logoData?: { imageLight: string, imageDark: string } | null }) => {
 	const t = useTranslations('Footer');
 	const navT = useTranslations('Navigation');
 	const locale = useLocale();
@@ -17,39 +17,7 @@ const Footer = () => {
 
 	const { isDark, isMounted } = useDarkMode();
 
-	const [dynamicLogoData, setDynamicLogoData] = useState<{ imageLight: string, imageDark: string } | null>(null);
-
-	useEffect(() => {
-		const fetchLogo = async () => {
-			try {
-				const base_url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-				const res = await fetch(`${base_url}/api/logos`, {
-					headers: {
-						'lang': locale
-					}
-				});
-				if (res.ok) {
-					const data = await res.json();
-					if (data && data.length > 0) {
-						const logo = data[0];
-						const lightSrc = logo.imageLight || logo.image;
-						const darkSrc = logo.imageDark || logo.image;
-
-						if (lightSrc && darkSrc) {
-							setDynamicLogoData({
-								imageLight: lightSrc.startsWith('http') ? lightSrc : `${base_url}${lightSrc}`,
-								imageDark: darkSrc.startsWith('http') ? darkSrc : `${base_url}${darkSrc}`
-							});
-						}
-					}
-				}
-			} catch (error) {
-				console.error('Error fetching logo:', error);
-			}
-		};
-
-		fetchLogo();
-	}, [locale]);
+	const [dynamicLogoData] = useState<{ imageLight: string, imageDark: string } | null>(logoData || null);
 
 	const getLogoImage = () => {
 		if (!dynamicLogoData) return null;
@@ -76,7 +44,7 @@ const Footer = () => {
 								{dynamicLogoData && currentLogo ? (
 									<Image
 										src={currentLogo}
-										alt="Mimo Studio"
+										alt="mimophotograph"
 										width={100}
 										height={60}
 										className="object-contain w-auto h-full max-h-[60px]"
@@ -87,7 +55,7 @@ const Footer = () => {
 									!isMounted ? (
 										<Image
 											src={Whitelogo}
-											alt="Mimo Studio"
+											alt="mimophotograph"
 											width={100}
 											height={60}
 											className="object-contain w-auto h-full max-h-[60px]"
@@ -96,7 +64,7 @@ const Footer = () => {
 									) : (!isDark) ? ( // Light Mode -> bg-foreground is dark, text-background is white
 										<Image
 											src={Whitelogo}
-											alt="Mimo Studio"
+											alt="mimophotograph"
 											width={100}
 											height={60}
 											className="object-contain w-auto h-full max-h-[60px]"
@@ -105,7 +73,7 @@ const Footer = () => {
 									) : ( // Dark Mode -> bg-foreground is light, text-background is black
 										<Image
 											src={Blacklogo}
-											alt="Mimo Studio"
+											alt="mimophotograph"
 											width={100}
 											height={60}
 											className="object-contain w-auto h-full max-h-[60px]"
@@ -178,7 +146,7 @@ const Footer = () => {
 									<Instagram size={18} />
 								</Link>
 								<Link
-									href="https://t.me/@Mimoph"
+									href="https://t.me/Mimoph"
 									target="_blank"
 									className="w-10 h-10 rounded-full border border-border flex items-center 
 											justify-center text-background hover:bg-Brown-color 

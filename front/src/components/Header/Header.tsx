@@ -14,7 +14,7 @@ import { useDarkMode } from "@/hooks/useDarkMode";
 import { useState, useEffect } from 'react';
 import ReviewModal from '@/components/ReviewModal/ReviewModal';
 
-const Header = () => {
+const Header = ({ logoData }: { logoData?: { imageLight: string, imageDark: string } | null }) => {
 	const t = useTranslations('Navigation');
 	const locale = useLocale();
 	const { isScrolled } = useEcommerceScroll();
@@ -24,39 +24,7 @@ const Header = () => {
 	const [isReviewOpen, setIsReviewOpen] = useState(false);
 	const isBookingPage = pathname.includes('/booking') || pathname.includes('/custom-package') || pathname.includes('/privacy') || pathname.includes('/terms') || pathname.includes('/about');
 
-	const [dynamicLogoData, setDynamicLogoData] = useState<{ imageLight: string, imageDark: string } | null>(null);
-
-	useEffect(() => {
-		const fetchLogo = async () => {
-			try {
-				const base_url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-				const res = await fetch(`${base_url}/api/logos`, {
-					headers: {
-						'lang': locale
-					}
-				});
-				if (res.ok) {
-					const data = await res.json();
-					if (data && data.length > 0) {
-						const logo = data[0];
-						const lightSrc = logo.imageLight || logo.image;
-						const darkSrc = logo.imageDark || logo.image;
-
-						if (lightSrc && darkSrc) {
-							setDynamicLogoData({
-								imageLight: lightSrc.startsWith('http') ? lightSrc : `${base_url}${lightSrc}`,
-								imageDark: darkSrc.startsWith('http') ? darkSrc : `${base_url}${darkSrc}`
-							});
-						}
-					}
-				}
-			} catch (error) {
-				console.error('Error fetching logo:', error);
-			}
-		};
-
-		fetchLogo();
-	}, [locale]);
+	const [dynamicLogoData] = useState<{ imageLight: string, imageDark: string } | null>(logoData || null);
 
 	const LinksData = [
 		{ id: 1, title: t('home'), url: '/' },
@@ -105,7 +73,7 @@ const Header = () => {
 							{currentLogo && (
 								<Image
 									src={currentLogo}
-									alt="Mimo Studio"
+									alt="mimophotograph"
 									width={100}
 									height={60}
 									className="object-contain w-auto h-full max-h-[60px]"

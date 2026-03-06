@@ -18,6 +18,7 @@ const BrandsManagement = () => {
 	const [formData, setFormData] = useState({ title: '', image: null as File | null })
 	const [preview, setPreview] = useState<string | null>(null)
 	const [isSubmitting, setIsSubmitting] = useState(false)
+	const [deletingId, setDeletingId] = useState<string | null>(null)
 	const fileInputRef = useRef<HTMLInputElement>(null)
 
 	const fetchPartners = async () => {
@@ -119,12 +120,15 @@ const BrandsManagement = () => {
 	const handleDelete = async (id: string) => {
 		if (!confirm('هل أنت متأكد من الحذف؟')) return
 		try {
+			setDeletingId(id);
 			const res = await apiFetch(`/dashboard/partners/${id}`, {
 				method: 'DELETE',
 			})
 			if (res.ok) fetchPartners()
 		} catch (error) {
 			console.error('Error deleting partner:', error)
+		} finally {
+			setDeletingId(null);
 		}
 	}
 
@@ -163,9 +167,17 @@ const BrandsManagement = () => {
 							<p className="text-center font-bold text-sm truncate">{partner.title}</p>
 							<button
 								onClick={() => handleDelete(partner._id)}
-								className="absolute top-4 left-4 w-10 h-10 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-600 opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-600 hover:text-white shadow-sm"
+								disabled={deletingId === partner._id}
+								className={`absolute top-4 left-4 w-10 h-10 flex items-center justify-center rounded-xl transition-all shadow-sm ${deletingId === partner._id
+										? 'bg-muted text-muted-foreground cursor-not-allowed'
+										: 'bg-rose-500/10 text-rose-600 hover:bg-rose-600 hover:text-white'
+									}`}
 							>
-								<Trash2 size={18} />
+								{deletingId === partner._id ? (
+									<Loader2 size={18} className="animate-spin" />
+								) : (
+									<Trash2 size={18} />
+								)}
 							</button>
 						</div>
 					))}
@@ -174,7 +186,7 @@ const BrandsManagement = () => {
 
 			{modalOpen && (
 				<div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-					<div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setModalOpen(false)} />
+					<div className="absolute inset-0 bg-black/60 backdrop-blur-md" />
 					<div className="relative bg-card border border-border w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 fade-in">
 						<div className="p-8 border-b border-border/50 flex items-center justify-between">
 							<h3 className="text-xl font-black">إضافة شريك جديد</h3>
@@ -193,7 +205,7 @@ const BrandsManagement = () => {
 									required
 									value={formData.title}
 									onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-									className="w-full bg-background/50 border border-border rounded-2xl px-5 py-3.5 outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm font-bold"
+									className="w-full bg-background border-1 border-blue-500/70 focus:border-blue-500 focus:border rounded-2xl px-5 py-3.5 outline-none focus:shadow-none transition-all text-sm font-black shadow-sm"
 									placeholder="اسم البراند أو الشريك"
 								/>
 							</div>

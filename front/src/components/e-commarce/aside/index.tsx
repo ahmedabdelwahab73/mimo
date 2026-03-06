@@ -10,7 +10,7 @@ import Whitelogo from '@/public/logowhite.png';
 import Blacklogo from '@/public/logoblack.png';
 import ReviewModal from '@/components/ReviewModal/ReviewModal';
 
-const Aside = () => {
+const Aside = ({ logoData }: { logoData?: { imageLight: string, imageDark: string } | null }) => {
 	const { isAsideOpen, toggleAside } = useAside();
 	const t = useTranslations('Navigation');
 	const locale = useLocale();
@@ -19,39 +19,11 @@ const Aside = () => {
 	const [mounted, setMounted] = useState(false);
 	const [isReviewOpen, setIsReviewOpen] = useState(false);
 
-	const [dynamicLogoData, setDynamicLogoData] = useState<{ imageLight: string, imageDark: string } | null>(null);
+	const [dynamicLogoData] = useState<{ imageLight: string, imageDark: string } | null>(logoData || null);
 
 	React.useEffect(() => {
-		const fetchLogo = async () => {
-			try {
-				const base_url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-				const res = await fetch(`${base_url}/api/logos`, {
-					headers: {
-						'lang': locale
-					}
-				});
-				if (res.ok) {
-					const data = await res.json();
-					if (data && data.length > 0) {
-						const logo = data[0];
-						const lightSrc = logo.imageLight || logo.image;
-						const darkSrc = logo.imageDark || logo.image;
-
-						if (lightSrc && darkSrc) {
-							setDynamicLogoData({
-								imageLight: lightSrc.startsWith('http') ? lightSrc : `${base_url}${lightSrc}`,
-								imageDark: darkSrc.startsWith('http') ? darkSrc : `${base_url}${darkSrc}`
-							});
-						}
-					}
-				}
-			} catch (error) {
-				console.error('Error fetching logo:', error);
-			}
-		};
-
-		fetchLogo();
-	}, [locale]);
+		setMounted(true);
+	}, []);
 
 	const getLogoImage = () => {
 		if (!dynamicLogoData) return null;
@@ -108,7 +80,7 @@ const Aside = () => {
 							{dynamicLogoData && currentLogo ? (
 								<Image
 									src={currentLogo}
-									alt="Mimo Studio"
+									alt="mimophotograph"
 									width={100}
 									height={60}
 									className="object-contain w-auto h-full max-h-[60px]"
@@ -120,7 +92,7 @@ const Aside = () => {
 										mounted && resolvedTheme === 'dark' &&
 										<Image
 											src={Whitelogo}
-											alt="Mimo Studio"
+											alt="mimophotograph"
 											width={100}
 											height={60}
 											className="object-contain w-auto h-full max-h-[60px]"
@@ -131,7 +103,7 @@ const Aside = () => {
 										mounted && resolvedTheme === 'light' &&
 										<Image
 											src={Blacklogo}
-											alt="Mimo Studio"
+											alt="mimophotograph"
 											width={100}
 											height={60}
 											className="object-contain w-auto h-full max-h-[60px]"

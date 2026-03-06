@@ -15,6 +15,7 @@ interface PackageModalProps {
 
 const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, handleSubmit }: PackageModalProps) => {
 	const [isSubmitting, setIsSubmitting] = useState(false)
+	const [retryMessage, setRetryMessage] = useState('')
 	const [errors, setErrors] = useState<Record<string, string>>({})
 
 	const validateForm = () => {
@@ -87,18 +88,24 @@ const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, han
 			try {
 				await handleSubmit(e)
 				success = true;
+				setRetryMessage('');
 			} catch (error: any) {
-				if (error.message === 'TIMEOUT' && retries > 1) {
+				const errorMsg = error.message || '';
+				const isTimeout = errorMsg === 'TIMEOUT' || errorMsg === 'Request Timeout' || errorMsg.includes('Timeout');
+
+				if (isTimeout && retries > 1) {
 					retries--;
+					setRetryMessage(`فشلت العملية لزيادة وقت التحميل، جاري المحاولة مرة أخرى... (محاولة ${4 - retries} من 3)`);
 					console.warn(`Package upload timed out. Retrying... (${3 - retries}/3)`);
 					setIsSubmitting(false); // Reset progress bar
 					await new Promise(resolve => setTimeout(resolve, 500)); // Small delay before retry
 					continue;
 				}
 				setIsSubmitting(false)
+				setRetryMessage('');
 				if (error.message && error.message.includes('رقم الترتيب هذا مستخدم بالفعل')) {
 					setErrors(prev => ({ ...prev, sort: error.message }))
-				} else if (error.message !== 'TIMEOUT') {
+				} else if (!isTimeout) {
 					alert(error.message || 'حدث خطأ أثناء الحفظ')
 				}
 				throw error;
@@ -156,7 +163,6 @@ const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, han
 		<div
 			className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
 			dir="rtl"
-			onClick={() => setModalOpen(false)}
 		>
 			<div
 				className="bg-[#ffffff] w-full max-w-4xl rounded-3xl shadow-2xl border border-border overflow-hidden flex flex-col max-h-[90vh]"
@@ -189,7 +195,7 @@ const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, han
 										if (errors['name-ar']) setErrors({ ...errors, 'name-ar': '' })
 										setFormData({ ...formData, 'name-ar': e.target.value })
 									}}
-									className={`w-full bg-background border ${errors['name-ar'] ? 'border-red-500 bg-red-50' : 'border-border focus:border-primary'} rounded-xl px-4 py-3 outline-none transition-all shadow-sm`}
+									className={`w-full bg-background border-1 ${errors['name-ar'] ? 'border-red-500 bg-red-50' : 'border-blue-500/70 focus:border-blue-500 focus:border'} rounded-xl px-4 py-3 outline-none focus:shadow-none transition-all text-sm font-black shadow-sm`}
 									placeholder="مثال: الباقة الأساسية"
 								/>
 								{errors['name-ar'] && <p className="text-xs text-red-500 font-bold mt-1">{errors['name-ar']}</p>}
@@ -203,7 +209,7 @@ const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, han
 										if (errors['name-en']) setErrors({ ...errors, 'name-en': '' })
 										setFormData({ ...formData, 'name-en': e.target.value })
 									}}
-									className={`w-full bg-background border ${errors['name-en'] ? 'border-red-500 bg-red-50' : 'border-border focus:border-primary'} rounded-xl px-4 py-3 outline-none transition-all shadow-sm text-left`}
+									className={`w-full bg-background border-1 ${errors['name-en'] ? 'border-red-500 bg-red-50' : 'border-blue-500/70 focus:border-blue-500 focus:border'} rounded-xl px-4 py-3 outline-none focus:shadow-none transition-all text-sm font-black shadow-sm text-left`}
 									placeholder="e.g: Basic Package"
 									dir="ltr"
 								/>
@@ -218,7 +224,7 @@ const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, han
 										if (errors['subname-ar']) setErrors({ ...errors, 'subname-ar': '' })
 										setFormData({ ...formData, 'subname-ar': e.target.value })
 									}}
-									className={`w-full bg-background border ${errors['subname-ar'] ? 'border-red-500 bg-red-50' : 'border-border focus:border-primary'} rounded-xl px-4 py-3 outline-none transition-all shadow-sm`}
+									className={`w-full bg-background border-1 ${errors['subname-ar'] ? 'border-red-500 bg-red-50' : 'border-blue-500/70 focus:border-blue-500 focus:border'} rounded-xl px-4 py-3 outline-none focus:shadow-none transition-all text-sm font-black shadow-sm`}
 									placeholder="مثال: للتصوير"
 								/>
 								{errors['subname-ar'] && <p className="text-xs text-red-500 font-bold mt-1">{errors['subname-ar']}</p>}
@@ -232,7 +238,7 @@ const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, han
 										if (errors['subname-en']) setErrors({ ...errors, 'subname-en': '' })
 										setFormData({ ...formData, 'subname-en': e.target.value })
 									}}
-									className={`w-full bg-background border ${errors['subname-en'] ? 'border-red-500 bg-red-50' : 'border-border focus:border-primary'} rounded-xl px-4 py-3 outline-none transition-all shadow-sm text-left`}
+									className={`w-full bg-background border-1 ${errors['subname-en'] ? 'border-red-500 bg-red-50' : 'border-blue-500/70 focus:border-blue-500 focus:border'} rounded-xl px-4 py-3 outline-none focus:shadow-none transition-all text-sm font-black shadow-sm text-left`}
 									placeholder="e.g: for photography"
 									dir="ltr"
 								/>
@@ -247,7 +253,7 @@ const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, han
 										if (errors.number) setErrors({ ...errors, number: '' })
 										setFormData({ ...formData, number: e.target.value })
 									}}
-									className={`w-full bg-background border ${errors.number ? 'border-red-500 bg-red-50' : 'border-border focus:border-primary'} rounded-xl px-4 py-3 outline-none transition-all shadow-sm`}
+									className={`w-full bg-background border-1 ${errors.number ? 'border-red-500 bg-red-50' : 'border-blue-500/70 focus:border-blue-500 focus:border'} rounded-xl px-4 py-3 outline-none focus:shadow-none transition-all text-sm font-black shadow-sm`}
 									placeholder="مثال: 5 جلسات أو غير محدود"
 								/>
 								{errors.number && <p className="text-xs text-red-500 font-bold mt-1">{errors.number}</p>}
@@ -261,7 +267,7 @@ const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, han
 										if (errors.sort) setErrors({ ...errors, sort: '' })
 										setFormData({ ...formData, sort: e.target.value ? parseInt(e.target.value) : '' })
 									}}
-									className={`w-full bg-background border ${errors.sort ? 'border-red-500 bg-red-50' : 'border-border focus:border-primary'} rounded-xl px-4 py-3 outline-none transition-all shadow-sm`}
+									className={`w-full bg-background border-1 ${errors.sort ? 'border-red-500 bg-red-50' : 'border-blue-500/70 focus:border-blue-500 focus:border'} rounded-xl px-4 py-3 outline-none focus:shadow-none transition-all text-sm font-black shadow-sm`}
 								/>
 								{errors.sort && <p className="text-xs text-red-500 font-bold mt-1">{errors.sort}</p>}
 							</div>
@@ -275,7 +281,7 @@ const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, han
 											if (errors.price) setErrors({ ...errors, price: '' })
 											setFormData({ ...formData, price: e.target.value })
 										}}
-										className={`w-full bg-background border ${errors.price ? 'border-red-500 bg-red-50' : 'border-border focus:border-primary'} rounded-xl pl-4 pr-12 py-3 outline-none transition-all shadow-sm`}
+										className={`w-full bg-background border-1 ${errors.price ? 'border-red-500 bg-red-50' : 'border-blue-500/70 focus:border-blue-500 focus:border'} rounded-xl pl-4 pr-12 py-3 outline-none focus:shadow-none transition-all text-sm font-black shadow-sm`}
 									/>
 									<span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-xs font-bold">EGP</span>
 								</div>
@@ -291,13 +297,13 @@ const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, han
 											if (errors.offer) setErrors({ ...errors, offer: '' })
 											setFormData({ ...formData, offer: e.target.value })
 										}}
-										className={`w-full bg-background border ${errors.offer ? 'border-red-500 bg-red-50' : 'border-border focus:border-primary'} rounded-xl pl-4 pr-12 py-3 outline-none transition-all shadow-sm`}
+										className={`w-full bg-background border-1 ${errors.offer ? 'border-red-500 bg-red-50' : 'border-blue-500/70 focus:border-blue-500 focus:border'} rounded-xl pl-4 pr-12 py-3 outline-none focus:shadow-none transition-all text-sm font-black shadow-sm`}
 									/>
 									<span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-xs font-bold">EGP</span>
 								</div>
 								{errors.offer && <p className="text-xs text-red-500 font-bold mt-1">{errors.offer}</p>}
 							</div>
-							<div className="space-y-2 col-span-2 mt-2">
+							<div className="space-y-2 col-span-1 md:col-span-2 mt-2">
 								<StatusToggle
 									active={formData.active}
 									onChange={(checked: boolean) => setFormData({ ...formData, active: checked ? 1 : 0 })}
@@ -321,7 +327,7 @@ const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, han
 											className="w-16 h-16 rounded-xl object-cover border border-border"
 										/>
 									)}
-									<label className="cursor-pointer flex-1 border-2 border-dashed border-border hover:border-primary rounded-xl p-4 flex items-center justify-center transition-colors">
+									<label className="cursor-pointer flex-1 border-2 border-dashed border-blue-500/20 hover:border-blue-600 rounded-xl p-4 flex items-center justify-center transition-colors">
 										<div className="flex flex-col items-center gap-2 text-muted-foreground hover:text-primary">
 											<UploadCloud size={24} />
 											<span className="text-sm font-bold">رفع صورة جديدة</span>
@@ -388,7 +394,7 @@ const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, han
 										</div>
 									))}
 								</div>
-								<label className="cursor-pointer border-2 border-dashed border-border hover:border-primary rounded-xl p-6 flex items-center justify-center transition-colors">
+								<label className="cursor-pointer border-2 border-dashed border-blue-500/20 hover:border-blue-600 rounded-xl p-6 flex items-center justify-center transition-colors">
 									<div className="flex flex-col items-center gap-2 text-muted-foreground hover:text-primary">
 										<ImageIcon size={32} />
 										<span className="text-sm font-bold">إضافة صور للمعرض</span>
@@ -476,7 +482,7 @@ const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, han
 																if (errors[`point-ar-${index}`]) setErrors({ ...errors, [`point-ar-${index}`]: '' })
 															}}
 															placeholder="وصف الميزة (عربي)"
-															className={`w-full bg-background border ${errors[`point-ar-${index}`] ? 'border-red-500 focus:border-red-500' : 'border-border focus:border-primary'} rounded-lg px-3 py-2 text-sm outline-none transition-all`}
+															className={`w-full bg-background border-1 ${errors[`point-ar-${index}`] ? 'border-red-500 focus:border-red-500' : 'border-blue-500/70 focus:border-blue-500 focus:border'} rounded-lg px-3 py-2 text-sm outline-none focus:shadow-none transition-all text-sm font-black shadow-sm`}
 														/>
 														{errors[`point-ar-${index}`] && <span className="text-red-500 text-xs font-bold mt-1 block">{errors[`point-ar-${index}`]}</span>}
 													</div>
@@ -489,7 +495,7 @@ const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, han
 																if (errors[`point-en-${index}`]) setErrors({ ...errors, [`point-en-${index}`]: '' })
 															}}
 															placeholder="Feature Description (EN)"
-															className={`w-full bg-background border ${errors[`point-en-${index}`] ? 'border-red-500 focus:border-red-500' : 'border-border focus:border-primary'} rounded-lg px-3 py-2 text-sm outline-none transition-all text-left`}
+															className={`w-full bg-background border-1 ${errors[`point-en-${index}`] ? 'border-red-500 focus:border-red-500' : 'border-blue-500/70 focus:border-blue-500 focus:border'} rounded-lg px-3 py-2 text-sm outline-none focus:shadow-none transition-all text-sm font-black shadow-sm text-left`}
 															dir="ltr"
 														/>
 														{errors[`point-en-${index}`] && <span className="text-red-500 text-xs font-bold mt-1 block">{errors[`point-en-${index}`]}</span>}
@@ -511,16 +517,17 @@ const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, han
 						</div>
 
 						<ProgressBar isUploading={isSubmitting} />
+						{retryMessage && <p className="text-xs text-amber-600 font-bold text-center animate-pulse">{retryMessage}</p>}
 					</form>
 				</div>
 
 				{/* Modal Footer */}
-				<div className="px-6 py-4 border-t border-border bg-muted/10 flex items-center gap-4 z-10 shrink-0">
+				<div className="px-6 py-5 border-t border-border bg-muted/10 flex flex-col md:flex-row items-stretch md:items-center gap-3 z-10 shrink-0">
 					<button
 						type="submit"
 						form="package-form"
 						disabled={isSubmitting}
-						className="cursor-pointer flex-1 flex items-center justify-center gap-3 bg-primary text-white py-4 rounded-2xl hover:opacity-95 active:scale-95 transition-all font-black shadow-xl shadow-primary/30 disabled:opacity-50"
+						className="cursor-pointer flex-1 flex items-center justify-center gap-3 bg-primary text-white py-4 rounded-2xl hover:opacity-95 active:scale-95 transition-all font-black shadow-xl shadow-primary/30 disabled:opacity-50 w-full md:w-auto"
 					>
 						{isSubmitting ? (
 							<span className="animate-pulse">جاري الحفظ...</span>
@@ -534,7 +541,7 @@ const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, han
 					<button
 						type="button"
 						onClick={() => setModalOpen(false)}
-						className="cursor-pointer px-15 flex items-center justify-center gap-3 bg-red-500 text-white py-4 rounded-2xl hover:opacity-95 active:scale-95 transition-all font-black shadow-xl shadow-primary/30"
+						className="cursor-pointer flex-1 md:flex-none md:px-15 flex items-center justify-center gap-3 bg-red-500 text-white py-4 rounded-2xl hover:opacity-95 active:scale-95 transition-all font-black shadow-xl shadow-primary/30 w-full md:w-auto"
 					>
 						إلغاء
 					</button>

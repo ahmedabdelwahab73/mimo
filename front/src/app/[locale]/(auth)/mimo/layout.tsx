@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 export const metadata: Metadata = {
 	title: "Mimo | Login",
-	description: "تسجيل الدخول إلى لوحة تحكم استوديو ميمو للتصوير الفوتوغرافي.",
+	description: "تسجيل الدخول إلى لوحة تحكم للتصوير ميمو للتصوير الفوتوغرافي.",
 	icons: {
 		icon: '/small.png',
 	},

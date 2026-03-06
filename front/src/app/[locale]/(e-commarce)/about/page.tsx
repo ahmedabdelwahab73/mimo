@@ -2,15 +2,15 @@ import Image from "next/image";
 import Container from "@/components/Container";
 import { Sparkles } from "lucide-react";
 import Whitelogo from '@/public/logowhite.png';
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
 export const metadata = {
 	title: "About | Photographer",
 	description: "Learn more about our photography services and passion.",
 };
 
-const AboutPage = () => {
-	const t = useTranslations('AboutPage');
+const AboutPage = async () => {
+	const t = await getTranslations('AboutPage');
 
 	return (
 		<div className="w-full pb-5 overflow-hidden">

@@ -20,6 +20,7 @@ const CustomPackageImageManagement = () => {
 	const [loading, setLoading] = useState(true)
 	const [modalOpen, setModalOpen] = useState(false)
 	const [editingGroup, setEditingGroup] = useState<CustomPackageGroup | null>(null)
+	const [deletingId, setDeletingId] = useState<string | null>(null)
 
 	const [formData, setFormData] = useState<{ existingImages: string[], images: File[], active: boolean }>({
 		existingImages: [],
@@ -96,6 +97,7 @@ const CustomPackageImageManagement = () => {
 			message: <>هل أنت متأكد من حذف المجموعة رقم <b className="text-foreground text-base px-1">{index + 1}</b> بكل ما فيها من صور؟</>,
 			onConfirm: async () => {
 				try {
+					setDeletingId(id);
 					const res = await apiFetch(`/dashboard/custom-package-images/${id}`, {
 						method: 'DELETE'
 					})
@@ -108,6 +110,8 @@ const CustomPackageImageManagement = () => {
 				} catch (error: any) {
 					console.error('Error deleting group:', error)
 					setFeedbackModal({ isOpen: true, type: 'error', message: error.message || 'حدث خطأ أثناء الحذف' });
+				} finally {
+					setDeletingId(null);
 				}
 			}
 		});
@@ -260,7 +264,7 @@ const CustomPackageImageManagement = () => {
 											</button>
 										</td>
 										<td className="px-6 py-5 text-center">
-											<div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+											<div className="flex items-center justify-center gap-2 transition-all duration-300">
 												<button
 													onClick={() => handleOpenModal(group)}
 													className="cursor-pointer w-9 h-9 flex items-center justify-center rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all shadow-sm"
@@ -269,9 +273,17 @@ const CustomPackageImageManagement = () => {
 												</button>
 												<button
 													onClick={() => handleDelete(group._id, group.active, index)}
-													className="w-9 h-9 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
+													disabled={deletingId === group._id}
+													className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm ${deletingId === group._id
+														? 'bg-muted text-muted-foreground cursor-not-allowed'
+														: 'bg-rose-500/10 text-rose-600 hover:bg-rose-600 hover:text-white'
+														}`}
 												>
-													<Trash2 size={16} />
+													{deletingId === group._id ? (
+														<Loader2 size={16} className="animate-spin" />
+													) : (
+														<Trash2 size={16} />
+													)}
 												</button>
 											</div>
 										</td>

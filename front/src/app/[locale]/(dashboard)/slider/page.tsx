@@ -24,6 +24,8 @@ const SliderManagement = () => {
 	const [loading, setLoading] = useState(true)
 	const [modalOpen, setModalOpen] = useState(false)
 	const [editingSlider, setEditingSlider] = useState<Slider | null>(null)
+	const [deletingId, setDeletingId] = useState<string | null>(null)
+	const [serverErrors, setServerErrors] = useState<Record<string, string>>({})
 	const [formData, setFormData] = useState<Omit<Slider, '_id' | 'sort'> & { sort: number | '' }>({
 		'title-ar': '',
 		'title-en': '',
@@ -68,6 +70,13 @@ const SliderManagement = () => {
 				throw new Error(errorData.message || 'فشلت العملية');
 			}
 			fetchSliders();
+			// Trigger revalidation for sliders
+			try {
+				const secret = 'mimo_secret_2026';
+				await fetch(`/api/revalidate?tag=sliders&secret=${secret}`);
+			} catch (e) {
+				console.error('Revalidation failed', e);
+			}
 		} catch (error: any) {
 			console.error('Error toggling status:', error)
 			setFeedbackModal({ isOpen: true, type: 'error', message: error.message || 'حدث خطأ أثناء تغيير الحالة' });
@@ -89,6 +98,13 @@ const SliderManagement = () => {
 						throw new Error(errorData.message || 'فشلت العملية');
 					}
 					fetchSliders();
+					// Trigger revalidation for sliders
+					try {
+						const secret = 'mimo_secret_2026';
+						await fetch(`/api/revalidate?tag=sliders&secret=${secret}`);
+					} catch (e) {
+						console.error('Revalidation failed', e);
+					}
 					setFeedbackModal({ isOpen: true, type: 'success', message: 'تم حذف السلايدر بنجاح!' });
 				} catch (error: any) {
 					console.error('Error deleting slider:', error)
@@ -99,6 +115,7 @@ const SliderManagement = () => {
 	}
 
 	const handleOpenModal = (slider: Slider | null = null) => {
+		setServerErrors({});
 		if (slider) {
 			setEditingSlider(slider)
 			setFormData({
@@ -125,6 +142,7 @@ const SliderManagement = () => {
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
+		setServerErrors({});
 		const method = editingSlider ? 'PUT' : 'POST'
 		const endpoint = editingSlider ? `/dashboard/sliders/${editingSlider._id}` : '/dashboard/sliders'
 
@@ -145,17 +163,30 @@ const SliderManagement = () => {
 
 			if (!res.ok) {
 				const errorData = await res.json();
-				throw new Error(errorData.message || 'فشلت العملية');
+				const errorMessage = errorData.message || 'فشلت العملية';
+
+				if (errorMessage.includes('رقم الترتيب')) {
+					setServerErrors({ sort: errorMessage });
+					throw new Error('VALIDATION_ERROR');
+				}
+
+				throw new Error(errorMessage);
 			}
 
 			setModalOpen(false);
 			fetchSliders();
+			// Trigger revalidation for sliders
+			try {
+				const secret = 'mimo_secret_2026';
+				await fetch(`/api/revalidate?tag=sliders&secret=${secret}`);
+			} catch (e) {
+				console.error('Revalidation failed', e);
+			}
 			setFeedbackModal({ isOpen: true, type: 'success', message: editingSlider ? 'تم تحديث السلايدر بنجاح!' : 'تم إضافة السلايدر بنجاح!' });
 		} catch (error: any) {
 			console.error('Error saving slider:', error)
 
-			// Only show feedback modal if it's not the sort validation error
-			if (!error.message || !error.message.includes('رقم الترتيب هذا مستخدم بالفعل')) {
+			if (error.message !== 'VALIDATION_ERROR') {
 				setFeedbackModal({ isOpen: true, type: 'error', message: error.message || 'حدث خطأ أثناء الحفظ' });
 			}
 			throw error;
@@ -226,7 +257,7 @@ const SliderManagement = () => {
 											</button>
 										</td>
 										<td className="px-6 py-5 text-center">
-											<div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+											<div className="flex items-center justify-center gap-2 transition-all duration-300">
 												<button
 													onClick={() => handleOpenModal(slider)}
 													className="cursor-pointer w-9 h-9 flex items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
@@ -235,9 +266,17 @@ const SliderManagement = () => {
 												</button>
 												<button
 													onClick={() => handleDelete(slider._id)}
-													className="cursor-pointer w-9 h-9 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
+													disabled={deletingId === slider._id}
+													className={`cursor-pointer w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm ${deletingId === slider._id
+															? 'bg-muted text-muted-foreground cursor-not-allowed'
+															: 'bg-rose-500/10 text-rose-600 hover:bg-rose-600 hover:text-white'
+														}`}
 												>
-													<Trash2 size={16} />
+													{deletingId === slider._id ? (
+														<Loader2 size={16} className="animate-spin" />
+													) : (
+														<Trash2 size={16} />
+													)}
 												</button>
 											</div>
 										</td>
@@ -266,7 +305,10 @@ const SliderManagement = () => {
 					editingSlider={editingSlider}
 					formData={formData}
 					setFormData={setFormData}
-					handleSubmit={handleSubmit} />
+					handleSubmit={handleSubmit}
+					serverErrors={serverErrors}
+					setServerErrors={setServerErrors}
+				/>
 			)}
 
 			<FeedbackModal

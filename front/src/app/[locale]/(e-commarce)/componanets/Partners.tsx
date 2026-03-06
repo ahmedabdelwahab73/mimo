@@ -13,13 +13,14 @@ interface Partner {
 	image: string;
 }
 
-const Partners = () => {
+const Partners = ({ initialData }: { initialData?: Partner[] }) => {
 	const locale = useLocale();
 	const isRtl = locale === 'ar';
-	const [partners, setPartners] = useState<Partner[]>([]);
-	const [loading, setLoading] = useState(true);
+	const [partners, setPartners] = useState<Partner[]>(initialData || []);
+	const [loading, setLoading] = useState(!initialData);
 
 	useEffect(() => {
+		if (initialData) return;
 		const fetchPartners = async () => {
 			try {
 				const base_url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
@@ -37,7 +38,7 @@ const Partners = () => {
 			}
 		};
 		fetchPartners();
-	}, []);
+	}, [locale, initialData]);
 
 	if (loading || partners.length === 0) return null;
 

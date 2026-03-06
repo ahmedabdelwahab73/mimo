@@ -5,6 +5,7 @@ import DashContainer from '../DashContainer/DashContainer';
 import { LayoutDashboard, Bell, User, Settings, LogOut, X, Eye, EyeOff, CheckCircle } from 'lucide-react'
 import { useSidebar } from '../SidebarContext'
 import { apiFetch } from '../../../lib/api'
+import AccountSettingsModal from './AccountSettingsModal';
 
 const DashHeader = () => {
 	const { toggle } = useSidebar();
@@ -56,55 +57,25 @@ const DashHeader = () => {
 		window.location.replace('/mimo');
 	};
 
-	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setFormData({
-			...formData,
-			[e.target.name]: e.target.value
-		});
-	};
-
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		setLoading(true);
-		setMessage({ type: '', text: '' });
-
-		try {
-			const res = await apiFetch('/users/update-credentials', {
-				method: 'PUT',
-				body: JSON.stringify(formData),
-			});
-
-			const data = await res.json();
-
-			if (res.ok) {
-				setMessage({ type: 'success', text: data.message || 'تم تحديث البيانات بنجاح' });
-				if (formData.newUsername) {
-					try {
-						const userStr = localStorage.getItem('user');
-						if (userStr) {
-							const userObj = JSON.parse(userStr);
-							userObj.username = formData.newUsername;
-							userObj.name = formData.newUsername;
-							localStorage.setItem('user', JSON.stringify(userObj));
-							setCurrentUsername(formData.newUsername);
-						}
-					} catch (e) { }
+	const handleUpdateSuccess = (newUsername: string) => {
+		if (newUsername) {
+			try {
+				const userStr = localStorage.getItem('user');
+				if (userStr) {
+					const userObj = JSON.parse(userStr);
+					userObj.username = newUsername;
+					userObj.name = newUsername;
+					localStorage.setItem('user', JSON.stringify(userObj));
+					setCurrentUsername(newUsername);
 				}
-				setIsSettingsOpen(false);
-				setIsSuccessPopupOpen(true);
-				setTimeout(() => {
-					setIsSuccessPopupOpen(false);
-					setMessage({ type: '', text: '' });
-					handleLogout();
-				}, 2500);
-			} else {
-				setMessage({ type: 'error', text: data.message || 'حدث خطأ أثناء التحديث' });
-			}
-		} catch (error) {
-			setMessage({ type: 'error', text: 'حدث خطأ في الاتصال بالخادم' });
-		} finally {
-			setLoading(false);
+			} catch (e) { }
 		}
+		setIsSettingsOpen(false);
+		setIsSuccessPopupOpen(true);
+		setTimeout(() => {
+			setIsSuccessPopupOpen(false);
+			handleLogout();
+		}, 2500);
 	};
 
 	return (
@@ -124,7 +95,7 @@ const DashHeader = () => {
 						</Link>
 					</div>
 
-					<div className="flex items-center gap-2 md:gap-4 lg:ml-64">
+					<div className="flex items-center gap-2 md:gap-4">
 						{/* Profile Dropdown */}
 						<div className="relative" ref={dropdownRef}>
 							<div
@@ -173,130 +144,36 @@ const DashHeader = () => {
 				</DashContainer>
 			</header>
 
-			{/* Settings Modal */}
-			{isSettingsOpen && (
-				<div
-					className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-					onClick={() => setIsSettingsOpen(false)}
-				>
-					<div
-						className="bg-card w-full max-w-md rounded-2xl shadow-2xl border border-border overflow-hidden animate-in zoom-in-95 duration-200"
-						onClick={e => e.stopPropagation()}
-						dir="rtl"
-					>
-						<div className="p-5 border-b border-border flex items-center justify-between bg-secondary/30">
-							<h3 className="text-xl font-bold">إعدادات الحساب</h3>
-							<button
-								onClick={() => setIsSettingsOpen(false)}
-								className="cursor-pointer p-3 hover:bg-red-100 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-red-200/40 rounded-2xl transition-all max-h-[44px]"
-							>
-								<X size={20} />
-							</button>
-						</div>
-
-						<div className="p-6">
-							{message.text && (
-								<div className={`p-4 mb-6 rounded-lg text-sm ${message.type === 'success' ? 'bg-green-100/10 text-green-500 border border-green-500/20' : 'bg-red-100/10 text-red-500 border border-red-500/20'}`}>
-									{message.text}
-								</div>
-							)}
-
-							<form onSubmit={handleSubmit} className="space-y-5">
-								<div>
-									<label className="block text-sm font-medium text-muted-foreground mb-2">
-										اسم المستخدم الجديد
-									</label>
-									<input
-										type="text"
-										name="newUsername"
-										value={formData.newUsername}
-										onChange={handleChange}
-										className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm"
-										placeholder="اسم المستخدم الحالي"
-									/>
-								</div>
-
-								<div className="pt-4 border-t border-border/50">
-									<label className="block text-sm font-medium text-muted-foreground mb-2">
-										كلمة المرور الحالية (مطلوب)
-									</label>
-									<div className="relative">
-										<input
-											type={showCurrentPassword ? "text" : "password"}
-											name="currentPassword"
-											required
-											value={formData.currentPassword}
-											onChange={handleChange}
-											className="w-full px-4 py-3 pl-10 rounded-xl border border-border bg-background/50 focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm"
-											placeholder="أدخل كلمة المرور الحالية"
-										/>
-										<button
-											type="button"
-											className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors focus:outline-none"
-											onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-										>
-											{showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-										</button>
-									</div>
-								</div>
-
-								<div>
-									<label className="block text-sm font-medium text-muted-foreground mb-2">
-										كلمة المرور الجديدة (اختياري)
-									</label>
-									<div className="relative">
-										<input
-											type={showNewPassword ? "text" : "password"}
-											name="newPassword"
-											value={formData.newPassword}
-											onChange={handleChange}
-											className="w-full px-4 py-3 pl-10 rounded-xl border border-border bg-background/50 focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm"
-											placeholder="أدخل كلمة المرور الجديدة (أو اتركها فارغة)"
-										/>
-										<button
-											type="button"
-											className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors focus:outline-none"
-											onClick={() => setShowNewPassword(!showNewPassword)}
-										>
-											{showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-										</button>
-									</div>
-								</div>
-
-								<div className="pt-4">
-									<button
-										type="submit"
-										disabled={loading || !formData.currentPassword}
-										className="w-full py-3.5 bg-gradient-primary text-white rounded-xl font-bold text-sm shadow-lg hover:shadow-primary/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5"
-									>
-										{loading ? 'جاري التحديث...' : 'حفظ التغييرات'}
-									</button>
-								</div>
-							</form>
-						</div>
-					</div>
-				</div>
-			)}
+			<AccountSettingsModal
+				isOpen={isSettingsOpen}
+				setIsOpen={setIsSettingsOpen}
+				currentUsername={currentUsername}
+				onSuccess={handleUpdateSuccess}
+				apiFetch={apiFetch}
+				handleLogout={handleLogout}
+			/>
 
 			{/* Success Popup Modal */}
 			{isSuccessPopupOpen && (
-				<div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-					<div className="bg-card w-full max-w-sm rounded-3xl shadow-2xl border border-border overflow-hidden animate-in zoom-in-95 duration-500 p-8 flex flex-col items-center justify-center text-center">
-						<div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mb-6">
-							<CheckCircle className="w-10 h-10 text-green-500 animate-bounce" />
+				<div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+					<div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300" />
+					<div className="relative bg-white w-full max-w-sm rounded-[2.5rem] shadow-2xl border border-border overflow-hidden animate-in zoom-in-95 duration-500 p-10 flex flex-col items-center justify-center text-center">
+						<div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mb-6">
+							<CheckCircle className="w-10 h-10 text-emerald-500 animate-bounce" />
 						</div>
-						<h3 className="text-2xl font-bold mb-2">نجاح!</h3>
-						<p className="text-muted-foreground mb-6">تم تحديث بيانات الحساب بنجاح.</p>
-						<p className="text-sm text-primary font-medium animate-pulse">جاري تسجيل الخروج...</p>
+						<h3 className="text-2xl font-black mb-2">تم التحديث!</h3>
+						<p className="text-muted-foreground font-bold mb-6 italic">تم تحديث بيانات الحساب بنجاح بنجاح.</p>
+						<p className="text-sm text-primary font-black animate-pulse">جاري تسجيل الخروج...</p>
 					</div>
 				</div>
 			)}
 
 			{/* Logout Confirmation Modal */}
 			{isLogoutModalOpen && (
-				<div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+				<div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+					<div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" />
 					<div
-						className="bg-card w-full max-w-sm rounded-[2rem] shadow-2xl border border-border overflow-hidden animate-in zoom-in-95 duration-200"
+						className="relative bg-white w-full max-w-sm rounded-[2.5rem] shadow-2xl border border-border overflow-hidden animate-in zoom-in-95 duration-200"
 						dir="rtl"
 					>
 						<div className="p-8 pb-10 flex flex-col items-center text-center">

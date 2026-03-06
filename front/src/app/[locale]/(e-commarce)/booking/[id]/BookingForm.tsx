@@ -165,7 +165,7 @@ ${packageSection}
 
 	return (
 		<div className="w-full mx-auto">
-			<div className="relative overflow-hidden bg-background/60 backdrop-blur-xl p-8 md:p-10 
+			<div className="relative overflow-hidden bg-background/60 backdrop-blur-xl p-5 md:p-10 
 				animate-fade-in text-start">
 				{/* Decorative elements */}
 				<div className="absolute top-0 end-0 -me-20 -mt-20 w-64 h-64 bg-[#b0a090]/20 rounded-full blur-3xl opacity-50" />
@@ -232,7 +232,7 @@ ${packageSection}
 									type="date"
 									dir="ltr"
 									{...register("dateLocation", { required: t("Booking.dateLocationRequired") })}
-									className="w-full ps-12 pe-4 py-3 bg-foreground/5 border border-border/50 rounded-2xl outline-none focus:border-[#b0a090] focus:ring-4 focus:ring-[#b0a090]/10 transition-all text-foreground cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:hidden"
+									className="w-full ps-12 pe-4 py-3 bg-foreground/5 border border-border/50 rounded-2xl outline-none focus:border-[#b0a090] focus:ring-4 focus:ring-[#b0a090]/10 transition-all text-foreground cursor-pointer [&::-webkit-calendar-picker-indicator]:hidden"
 								/>
 							</div>
 							{errors.dateLocation && <span className="text-red-500 text-xs mt-1 absolute -bottom-5 start-1">{errors.dateLocation.message}</span>}

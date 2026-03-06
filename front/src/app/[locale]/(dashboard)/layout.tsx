@@ -3,7 +3,7 @@ import DashboardClient from "./DashboardClient";
 
 export const metadata: Metadata = {
 	title: "Mimo | Dashboard",
-	description: "لوحة تحكم إدارة محتوى استوديو ميمو لخدمات التصوير الفوتوغرافي Mimo Studio Admin Panel.",
+	description: "لوحة تحكم إدارة محتوى للتصوير ميمو لخدمات التصوير الفوتوغرافي Mimo photography Admin Panel.",
 	icons: {
 		icon: "/small.png",
 	},

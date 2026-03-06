@@ -9,14 +9,17 @@ type IProps = {
 	editingSlider: any
 	formData: any
 	setFormData: (data: any) => void
-	handleSubmit: (e: React.FormEvent) => Promise<void> // Updated to return Promise<void>
+	handleSubmit: (e: React.FormEvent) => Promise<void>
+	serverErrors?: Record<string, string>
+	setServerErrors?: (errors: Record<string, string>) => void
 }
 
-const SliderModal = ({ setModalOpen, editingSlider, formData, setFormData, handleSubmit }: IProps) => {
+const SliderModal = ({ setModalOpen, editingSlider, formData, setFormData, handleSubmit, serverErrors = {}, setServerErrors }: IProps) => {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [retryMessage, setRetryMessage] = useState('');
 
 	useEffect(() => {
 		if (typeof formData.image === 'string' && formData.image.startsWith('http')) {
@@ -62,7 +65,6 @@ const SliderModal = ({ setModalOpen, editingSlider, formData, setFormData, handl
 		<div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
 			<div
 				className="absolute inset-0 bg-black/60 backdrop-blur-md animate-in fade-in duration-300"
-				onClick={() => setModalOpen(false)}
 			/>
 			<div className="relative bg-[#ffffff] border border-border w-full max-w-xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 fade-in duration-300">
 				<div className="p-8 border-b border-border/50 flex items-center justify-between">
@@ -99,15 +101,21 @@ const SliderModal = ({ setModalOpen, editingSlider, formData, setFormData, handl
 						try {
 							await handleSubmit(e);
 							success = true;
+							setRetryMessage('');
 						} catch (error: any) {
-							if (error.message === 'TIMEOUT' && retries > 1) {
+							const errorMsg = error.message || '';
+							const isTimeout = errorMsg === 'TIMEOUT' || errorMsg === 'Request Timeout' || errorMsg.includes('Timeout');
+
+							if (isTimeout && retries > 1) {
 								retries--;
+								setRetryMessage(`فشلت العملية لزيادة وقت التحميل، جاري المحاولة مرة أخرى... (محاولة ${4 - retries} من 3)`);
 								console.warn(`Slider upload timed out. Retrying... (${3 - retries}/3)`);
 								setIsSubmitting(false); // Reset progress bar
 								await new Promise(resolve => setTimeout(resolve, 500)); // Small delay before retry
 								continue;
 							}
 							setIsSubmitting(false);
+							setRetryMessage('');
 							// handleSubmit in parent might already show a modal, but we re-throw to stop the loop
 							throw error;
 						}
@@ -126,7 +134,7 @@ const SliderModal = ({ setModalOpen, editingSlider, formData, setFormData, handl
 							onClick={() => fileInputRef.current?.click()}
 							className="relative group cursor-pointer"
 						>
-							<div className={`w-full aspect-video rounded-2xl border-2 border-dashed ${previewUrl ? 'border-primary/50' : 'border-border'} hover:border-primary transition-all overflow-hidden flex flex-col items-center justify-center bg-background/50`}>
+							<div className={`w-full aspect-video rounded-2xl border-2 border-dashed ${previewUrl ? 'border-blue-500/50' : 'border-blue-500/20'} hover:border-blue-500 transition-all overflow-hidden flex flex-col items-center justify-center bg-background/50`}>
 								{previewUrl ? (
 									<>
 										<img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
@@ -158,15 +166,17 @@ const SliderModal = ({ setModalOpen, editingSlider, formData, setFormData, handl
 								value={formData.sort ?? ''}
 								onChange={(e) => {
 									if (errors.sort) setErrors({ ...errors, sort: '' })
+									if (setServerErrors) setServerErrors({ ...serverErrors, sort: '' })
 									setFormData({ ...formData, sort: e.target.value ? parseInt(e.target.value) : '' })
 								}}
-								className={`w-full bg-background border ${errors.sort ? 'border-red-500 bg-red-50' : 'border-border focus:border-primary'} rounded-2xl px-5 py-3.5 outline-none focus:ring-4 focus:ring-primary/10 transition-all text-sm font-black`}
+								className={`w-full bg-background border-1 ${errors.sort || serverErrors.sort ? 'border-red-500 bg-red-50' : 'border-blue-500/70 focus:border-blue-500 focus:border'} rounded-2xl px-5 py-3.5 outline-none focus:shadow-none transition-all text-sm font-black shadow-sm`}
 							/>
-							{errors.sort && <p className="text-xs text-red-500 font-bold mt-1">{errors.sort}</p>}
+							{(errors.sort || serverErrors.sort) && <p className="text-xs text-red-500 font-bold mt-1">{errors.sort || serverErrors.sort}</p>}
 						</div>
 					</div>
 
 					<ProgressBar isUploading={isSubmitting} />
+					{retryMessage && <p className="text-xs text-amber-600 font-bold text-center animate-pulse">{retryMessage}</p>}
 
 					<StatusToggle
 						active={formData.active}

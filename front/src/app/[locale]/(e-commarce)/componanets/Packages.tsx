@@ -18,22 +18,26 @@ type IProps = {
 	DesignYourPackageDesc: string;
 	StartDesigning: string;
 	apiUrl: string;
+	initialPackages?: ItemspackageType[];
+	initialCustomImages?: string[];
 }
 
-const Packages = ({ title, viewmore, ViewDetails, DesignYourPackage, DesignYourPackageDesc, StartDesigning, apiUrl }: IProps) => {
+const Packages = ({ title, viewmore, ViewDetails, DesignYourPackage, DesignYourPackageDesc, StartDesigning, apiUrl, initialPackages, initialCustomImages }: IProps) => {
 	const params = useParams();
 	const locale = params?.locale as string || 'ar';
-	const [packages, setPackages] = useState<ItemspackageType[]>([]);
-	const [customPackageImages, setCustomPackageImages] = useState<string[]>([]);
-	const [loading, setLoading] = useState(true);
+	const [packages, setPackages] = useState<ItemspackageType[]>(initialPackages || []);
+	const [customPackageImages, setCustomPackageImages] = useState<string[]>(initialCustomImages || []);
 	const [activeCardId, setActiveCardId] = useState<string | null>(null);
 	const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
 	useEffect(() => {
+		if (initialPackages) return;
 		const fetchPackages = async () => {
 			try {
-				setLoading(true);
-				const res = await apiFetch('/home/packages');
+				const base_url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+				const res = await fetch(`${base_url}/api/home/packages`, {
+					headers: { 'lang': locale }
+				});
 				if (res.ok) {
 					const data = await res.json();
 					const mappedData: ItemspackageType[] = data.map((item: any) => ({
@@ -56,14 +60,12 @@ const Packages = ({ title, viewmore, ViewDetails, DesignYourPackage, DesignYourP
 				}
 
 				// Fetch custom package images
-				const customImgRes = await apiFetch('/custom-package-images', {
+				const customImgRes = await fetch(`${base_url}/api/custom-package-images`, {
 					headers: { 'lang': locale }
 				});
 				if (customImgRes.ok) {
 					const customImgData = await customImgRes.json();
 					if (customImgData && customImgData.length > 0) {
-						// Assuming data structure based on previous context: it's an array of groups, each has 'images' array.
-						// We'll flatten them or take the first active one.
 						const activeImages: string[] = [];
 						customImgData.forEach((group: any) => {
 							if (group.active !== 0 && group.images) {
@@ -75,15 +77,13 @@ const Packages = ({ title, viewmore, ViewDetails, DesignYourPackage, DesignYourP
 				}
 			} catch (error) {
 				console.error('Error fetching packages:', error);
-			} finally {
-				setLoading(false);
 			}
 		};
 		fetchPackages();
-	}, [locale, apiUrl]);
+	}, [locale, apiUrl, initialPackages]);
 
 	useEffect(() => {
-		if (loading || packages.length === 0) return;
+		if (packages.length === 0) return;
 
 		// We consider it "mobile/touch" if either it doesn't support hover OR the window is small
 		const isTouchOrMobile = window.matchMedia('(hover: none), (pointer: coarse), (max-width: 1024px)').matches;
@@ -130,21 +130,14 @@ const Packages = ({ title, viewmore, ViewDetails, DesignYourPackage, DesignYourP
 		return () => {
 			observer.disconnect();
 		};
-	}, [packages, loading]);
+	}, [packages]);
 
 	const setCardRef = useCallback((id: string) => (el: HTMLDivElement | null) => {
 		if (el) cardRefs.current.set(id, el);
 		else cardRefs.current.delete(id);
 	}, []);
 
-
-	if (loading) {
-		return (
-			<div className="flex flex-col items-center justify-center py-32 gap-4">
-				<Loader2 className="w-12 h-12 text-primary animate-spin opacity-50" />
-			</div>
-		);
-	}
+	// Removed the early return for loading to rely on global loading.tsx
 
 	if (packages.length === 0) return null;
 

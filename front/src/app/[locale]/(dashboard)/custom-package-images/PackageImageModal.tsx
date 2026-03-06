@@ -109,7 +109,6 @@ const CustomPackageImageModal = ({ setModalOpen, editingGroup, formData, setForm
 	return (
 		<div
 			className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-			onClick={() => setModalOpen(false)}
 		>
 			<div
 				className="bg-[#ffffff] border border-border w-full max-w-3xl rounded-3xl 

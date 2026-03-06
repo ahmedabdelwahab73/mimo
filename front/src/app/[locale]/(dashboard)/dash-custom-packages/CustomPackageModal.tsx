@@ -104,7 +104,6 @@ const CustomPackageModal = ({ setModalOpen, editingPackage, formData, setFormDat
 		<div
 			className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
 			dir="rtl"
-			onClick={() => setModalOpen(false)}
 		>
 			<div
 				className="bg-card w-full max-w-3xl rounded-3xl shadow-2xl border border-border overflow-hidden flex flex-col max-h-[90vh]"
@@ -139,7 +138,7 @@ const CustomPackageModal = ({ setModalOpen, editingPackage, formData, setFormDat
 										if (errors.sectionNameAr) setErrors({ ...errors, sectionNameAr: '' });
 										setFormData({ ...formData, sectionNameAr: e.target.value });
 									}}
-									className={`w-full bg-background border ${errors.sectionNameAr ? 'border-red-500 bg-red-50' : 'border-border focus:border-primary'} rounded-xl px-4 py-3 outline-none transition-all shadow-sm`}
+									className={`w-full bg-background border-1 ${errors.sectionNameAr ? 'border-red-500 bg-red-50' : 'border-blue-500/70 focus:border-blue-500 focus:border'} rounded-xl px-4 py-3 outline-none focus:shadow-none transition-all text-sm font-black shadow-sm`}
 									placeholder="مثال: باقة التصوير"
 								/>
 								{errors.sectionNameAr && <p className="text-xs text-red-500 font-bold mt-1">{errors.sectionNameAr}</p>}
@@ -153,7 +152,7 @@ const CustomPackageModal = ({ setModalOpen, editingPackage, formData, setFormDat
 										if (errors.sectionNameEn) setErrors({ ...errors, sectionNameEn: '' });
 										setFormData({ ...formData, sectionNameEn: e.target.value });
 									}}
-									className={`w-full bg-background border ${errors.sectionNameEn ? 'border-red-500 bg-red-50' : 'border-border focus:border-primary'} rounded-xl px-4 py-3 outline-none transition-all shadow-sm text-left`}
+									className={`w-full bg-background border-1 ${errors.sectionNameEn ? 'border-red-500 bg-red-50' : 'border-blue-500/70 focus:border-blue-500 focus:border'} rounded-xl px-4 py-3 outline-none focus:shadow-none transition-all text-sm font-black shadow-sm text-left`}
 									placeholder="e.g: Photography Package"
 									dir="ltr"
 								/>
@@ -168,7 +167,7 @@ const CustomPackageModal = ({ setModalOpen, editingPackage, formData, setFormDat
 										if (errors.sort) setErrors({ ...errors, sort: '' })
 										setFormData({ ...formData, sort: e.target.value ? parseInt(e.target.value) : '' })
 									}}
-									className={`w-full bg-background border ${errors.sort ? 'border-red-500 bg-red-50' : 'border-border focus:border-primary'} rounded-xl px-4 py-3 outline-none transition-all shadow-sm`}
+									className={`w-full bg-background border-1 ${errors.sort ? 'border-red-500 bg-red-50' : 'border-blue-500/70 focus:border-blue-500 focus:border'} rounded-xl px-4 py-3 outline-none focus:shadow-none transition-all text-sm font-black shadow-sm`}
 								/>
 								{errors.sort && <p className="text-xs text-red-500 font-bold mt-1">{errors.sort}</p>}
 							</div>
@@ -217,7 +216,7 @@ const CustomPackageModal = ({ setModalOpen, editingPackage, formData, setFormDat
 															handleOptionChange(index, 'pointAr', e.target.value);
 														}}
 														placeholder="وصف النقطة (عربي)"
-														className={`w-full bg-background border ${errors[`pointAr_${index}`] ? 'border-red-500 bg-red-50' : 'border-border focus:border-primary'} rounded-lg px-3 py-2 text-sm outline-none transition-all`}
+														className={`w-full bg-background border-1 ${errors[`pointAr_${index}`] ? 'border-red-500 bg-red-50' : 'border-blue-500/70 focus:border-blue-500 focus:border'} rounded-lg px-3 py-2 text-sm outline-none focus:shadow-none transition-all text-sm font-black shadow-sm`}
 													/>
 													{errors[`pointAr_${index}`] && <p className="text-[10px] text-red-500 font-bold mt-1">{errors[`pointAr_${index}`]}</p>}
 												</div>
@@ -230,7 +229,7 @@ const CustomPackageModal = ({ setModalOpen, editingPackage, formData, setFormDat
 															handleOptionChange(index, 'pointEn', e.target.value);
 														}}
 														placeholder="Point Description (EN)"
-														className={`w-full bg-background border ${errors[`pointEn_${index}`] ? 'border-red-500 bg-red-50' : 'border-border focus:border-primary'} rounded-lg px-3 py-2 text-sm outline-none transition-all text-left`}
+														className={`w-full bg-background border-1 ${errors[`pointEn_${index}`] ? 'border-red-500 bg-red-50' : 'border-blue-500/70 focus:border-blue-500 focus:border'} rounded-lg px-3 py-2 text-sm outline-none focus:shadow-none transition-all text-sm font-black shadow-sm text-left`}
 														dir="ltr"
 													/>
 													{errors[`pointEn_${index}`] && <p className="text-[10px] text-red-500 font-bold mt-1">{errors[`pointEn_${index}`]}</p>}
@@ -246,7 +245,7 @@ const CustomPackageModal = ({ setModalOpen, editingPackage, formData, setFormDat
 																handleOptionChange(index, 'price', e.target.value);
 															}}
 															placeholder="السعر"
-															className={`w-full bg-background border ${errors[`price_${index}`] ? 'border-red-500 bg-red-50' : 'border-border focus:border-primary'} rounded-lg pl-3 pr-10 py-2 text-sm outline-none transition-all`}
+															className={`w-full bg-background border-1 ${errors[`price_${index}`] ? 'border-red-500 bg-red-50' : 'border-blue-500/70 focus:border-blue-500 focus:border'} rounded-lg pl-3 pr-10 py-2 text-sm outline-none focus:shadow-none transition-all text-sm font-black shadow-sm`}
 														/>
 														<span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs font-bold ml-1">EGP</span>
 													</div>

@@ -138,7 +138,10 @@
     "changesText": "We reserve the right to modify these terms at any time. Changes will be effective immediately upon posting to this website."
   },
   "Metadata": {
-    "title": "Mimo Studio",
-    "description": "The best photography studio in Egypt for wedding, engagement, graduation, and portrait photography with the highest quality to capture your happiest moments. Mimo Studio capturing your best moments."
+    "title": "Mimo Photography",
+    "description": "The best photography studio in Egypt for wedding, engagement, graduation, and portrait photography with the highest quality to capture your happiest moments. Mimo photography capturing your best moments."
+  },
+  "Common": {
+    "loading": "Loading beautiful moments..."
   }
 }

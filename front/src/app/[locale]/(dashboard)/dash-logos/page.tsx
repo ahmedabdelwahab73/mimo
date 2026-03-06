@@ -21,6 +21,7 @@ const LogoManagement = () => {
 	const [loading, setLoading] = useState(true)
 	const [modalOpen, setModalOpen] = useState(false)
 	const [editingLogo, setEditingLogo] = useState<Logo | null>(null)
+	const [deletingId, setDeletingId] = useState<string | null>(null)
 	const [formData, setFormData] = useState<Omit<Logo, '_id'>>({
 		imageLight: '',
 		imageDark: '',
@@ -88,6 +89,7 @@ const LogoManagement = () => {
 			confirmText: 'نعم، احذف',
 			onConfirm: async () => {
 				try {
+					setDeletingId(id);
 					const res = await apiFetch(`/dashboard/logos/${id}`, {
 						method: 'DELETE'
 					})
@@ -97,6 +99,8 @@ const LogoManagement = () => {
 					}
 				} catch (error) {
 					console.error('Error deleting logo:', error)
+				} finally {
+					setDeletingId(null);
 				}
 			}
 		});
@@ -154,6 +158,15 @@ const LogoManagement = () => {
 
 			setModalOpen(false);
 			fetchLogos();
+
+			// Trigger revalidation for logos
+			try {
+				const secret = 'mimo_secret_2026'; // In a real app, this would be an env var accessed via a server action or secured better
+				await fetch(`/api/revalidate?tag=logo&secret=${secret}`);
+			} catch (e) {
+				console.error('Revalidation failed', e);
+			}
+
 			setFeedbackModal({ isOpen: true, type: 'success', message: editingLogo ? 'تم تحديث اللوجو بنجاح!' : 'تم إضافة اللوجو بنجاح!' });
 		} catch (error: any) {
 			console.error('Error saving logo:', error)
@@ -228,13 +241,21 @@ const LogoManagement = () => {
 											</button>
 										</td>
 										<td className="px-6 py-5 text-center">
-											<div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+											<div className="flex items-center justify-center gap-2 transition-all duration-300">
 												{/* Removing Edit button since it wasn't requested natively and usually a logo is just deleted and re-added */}
 												<button
 													onClick={() => handleDelete(logo._id)}
-													className="cursor-pointer w-9 h-9 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
+													disabled={deletingId === logo._id}
+													className={`cursor-pointer w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm ${deletingId === logo._id
+															? 'bg-muted text-muted-foreground cursor-not-allowed'
+															: 'bg-rose-500/10 text-rose-600 hover:bg-rose-600 hover:text-white'
+														}`}
 												>
-													<Trash2 size={16} />
+													{deletingId === logo._id ? (
+														<Loader2 size={16} className="animate-spin" />
+													) : (
+														<Trash2 size={16} />
+													)}
 												</button>
 											</div>
 										</td>

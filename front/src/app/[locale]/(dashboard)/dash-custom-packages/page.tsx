@@ -28,6 +28,7 @@ const CustomPackages = () => {
 	const [modalOpen, setModalOpen] = useState(false)
 	const [feedbackModal, setFeedbackModal] = useState({ isOpen: false, type: 'success' as 'success' | 'error', message: '' })
 	const [editingPackage, setEditingPackage] = useState<CustomPackage | null>(null)
+	const [deletingId, setDeletingId] = useState<string | null>(null)
 	const [formData, setFormData] = useState({
 		sectionNameAr: '',
 		sectionNameEn: '',
@@ -69,12 +70,15 @@ const CustomPackages = () => {
 	const handleDelete = async (id: string) => {
 		if (!confirm('هل أنت متأكد من حذف هذا القسم؟ جميع بياناته ستُفقد.')) return
 		try {
+			setDeletingId(id);
 			const res = await apiFetch(`/custom-packages/${id}`, {
 				method: 'DELETE'
 			})
 			if (res.ok) fetchPackages()
 		} catch (error) {
 			console.error('Error deleting custom package:', error)
+		} finally {
+			setDeletingId(null);
 		}
 	}
 
@@ -193,7 +197,7 @@ const CustomPackages = () => {
 											</button>
 										</td>
 										<td className="px-6 py-5 text-center">
-											<div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+											<div className="flex items-center justify-center gap-2 transition-all duration-300">
 												<button
 													onClick={() => handleOpenModal(pkg)}
 													className="cursor-pointer w-9 h-9 flex items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
@@ -203,10 +207,18 @@ const CustomPackages = () => {
 												</button>
 												<button
 													onClick={() => handleDelete(pkg._id)}
-													className="cursor-pointer w-9 h-9 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
+													disabled={deletingId === pkg._id}
+													className={`cursor-pointer w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm ${deletingId === pkg._id
+															? 'bg-muted text-muted-foreground cursor-not-allowed'
+															: 'bg-rose-500/10 text-rose-600 hover:bg-rose-600 hover:text-white'
+														}`}
 													title="حذف"
 												>
-													<Trash2 size={16} />
+													{deletingId === pkg._id ? (
+														<Loader2 size={16} className="animate-spin" />
+													) : (
+														<Trash2 size={16} />
+													)}
 												</button>
 											</div>
 										</td>

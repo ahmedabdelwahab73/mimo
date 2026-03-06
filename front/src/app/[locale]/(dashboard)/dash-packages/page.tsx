@@ -32,6 +32,7 @@ const DashPackages = () => {
 	const [loading, setLoading] = useState(true)
 	const [modalOpen, setModalOpen] = useState(false)
 	const [editingPackage, setEditingPackage] = useState<Package | null>(null)
+	const [deletingId, setDeletingId] = useState<string | null>(null)
 	const [formData, setFormData] = useState<Omit<Package, '_id' | 'price' | 'offer' | 'sort'> & { price: number | '', offer: number | '', sort: number | '' }>({
 		'name-ar': '',
 		'name-en': '',
@@ -73,7 +74,16 @@ const DashPackages = () => {
 			const res = await apiFetch(`/dashboard/packages/${id}/active`, {
 				method: 'PATCH'
 			})
-			if (res.ok) fetchPackages()
+			if (res.ok) {
+				fetchPackages();
+				// Trigger revalidation for packages
+				try {
+					const secret = 'mimo_secret_2026';
+					await fetch(`/api/revalidate?tag=packages&secret=${secret}`);
+				} catch (e) {
+					console.error('Revalidation failed', e);
+				}
+			}
 		} catch (error) {
 			console.error('Error toggling status:', error)
 		}
@@ -86,12 +96,24 @@ const DashPackages = () => {
 			confirmText: 'نعم، احذف',
 			onConfirm: async () => {
 				try {
+					setDeletingId(id);
 					const res = await apiFetch(`/dashboard/packages/${id}`, {
 						method: 'DELETE'
 					})
-					if (res.ok) fetchPackages()
+					if (res.ok) {
+						fetchPackages();
+						// Trigger revalidation for packages
+						try {
+							const secret = 'mimo_secret_2026';
+							await fetch(`/api/revalidate?tag=packages&secret=${secret}`);
+						} catch (e) {
+							console.error('Revalidation failed', e);
+						}
+					}
 				} catch (error) {
 					console.error('Error deleting package:', error)
+				} finally {
+					setDeletingId(null);
 				}
 			}
 		});
@@ -187,6 +209,14 @@ const DashPackages = () => {
 
 			setModalOpen(false);
 			fetchPackages();
+
+			// Trigger revalidation for packages
+			try {
+				const secret = 'mimo_secret_2026';
+				await fetch(`/api/revalidate?tag=packages&secret=${secret}`);
+			} catch (e) {
+				console.error('Revalidation failed', e);
+			}
 		} catch (error: any) {
 			console.error('Error saving package:', error)
 			throw error;
@@ -300,7 +330,7 @@ const DashPackages = () => {
 											</button>
 										</td>
 										<td className="px-6 py-5 text-center">
-											<div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+											<div className="flex items-center justify-center gap-2 transition-all duration-300">
 												<button
 													onClick={() => handleOpenModal(pkg)}
 													className="cursor-pointer w-9 h-9 flex items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
@@ -309,9 +339,17 @@ const DashPackages = () => {
 												</button>
 												<button
 													onClick={() => handleDelete(pkg._id)}
-													className="cursor-pointer w-9 h-9 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
+													disabled={deletingId === pkg._id}
+													className={`cursor-pointer w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm ${deletingId === pkg._id
+															? 'bg-muted text-muted-foreground cursor-not-allowed'
+															: 'bg-rose-500/10 text-rose-600 hover:bg-rose-600 hover:text-white'
+														}`}
 												>
-													<Trash2 size={16} />
+													{deletingId === pkg._id ? (
+														<Loader2 size={16} className="animate-spin" />
+													) : (
+														<Trash2 size={16} />
+													)}
 												</button>
 											</div>
 										</td>

@@ -118,7 +118,7 @@ const DashAside = () => {
 					<div className="flex items-center justify-center">
 						<Image
 							src={dynamicLogo || Blacklogo}
-							alt="Mimo Studio"
+							alt="Mimo_photography"
 							width={80}
 							height={40}
 							className="object-contain w-auto h-full max-h-[40px]"

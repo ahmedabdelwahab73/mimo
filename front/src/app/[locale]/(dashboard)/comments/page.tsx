@@ -16,6 +16,7 @@ const CommentsManagement = () => {
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 	const [comments, setComments] = useState<Comment[]>([])
 	const [loading, setLoading] = useState(true)
+	const [deletingId, setDeletingId] = useState<string | null>(null)
 
 	const fetchComments = async () => {
 		try {
@@ -49,12 +50,15 @@ const CommentsManagement = () => {
 	const handleDelete = async (id: string) => {
 		if (!confirm('هل أنت متأكد من حذف هذا التعليق؟')) return
 		try {
+			setDeletingId(id);
 			const res = await apiFetch(`/dashboard/comments/${id}`, {
 				method: 'DELETE',
 			})
 			if (res.ok) fetchComments()
 		} catch (error) {
 			console.error('Error deleting comment:', error)
+		} finally {
+			setDeletingId(null);
 		}
 	}
 
@@ -89,7 +93,7 @@ const CommentsManagement = () => {
 							</thead>
 							<tbody className="divide-y divide-border/40">
 								{comments.length > 0 ? comments.map((comment) => (
-									<tr key={comment._id} className="hover:bg-primary/5 transition-colors group">
+									<tr key={comment._id} className="hover:bg-primary/5 transition-colors">
 										<td className="px-6 py-5">
 											<div className="relative w-12 h-12 rounded-full overflow-hidden border border-border bg-muted/20 flex items-center justify-center">
 												{comment.image ? (
@@ -133,9 +137,17 @@ const CommentsManagement = () => {
 										<td className="px-6 py-5 text-center">
 											<button
 												onClick={() => handleDelete(comment._id)}
-												className="w-9 h-9 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm mx-auto"
+												disabled={deletingId === comment._id}
+												className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm mx-auto ${deletingId === comment._id
+														? 'bg-muted text-muted-foreground cursor-not-allowed'
+														: 'bg-rose-500/10 text-rose-600 hover:bg-rose-600 hover:text-white'
+													}`}
 											>
-												<Trash2 size={16} />
+												{deletingId === comment._id ? (
+													<Loader2 size={16} className="animate-spin" />
+												) : (
+													<Trash2 size={16} />
+												)}
 											</button>
 										</td>
 									</tr>

@@ -22,17 +22,18 @@ interface TestimonialData {
 	createdAt: string;
 }
 
-const Testimonials = ({ title, ShareYourExperience }: { title: string, ShareYourExperience: string }) => {
+const Testimonials = ({ title, ShareYourExperience, initialData }: { title: string, ShareYourExperience: string, initialData?: TestimonialData[] }) => {
 	const locale = useLocale();
 	const isRtl = locale === 'ar';
-	const [testimonials, setTestimonials] = React.useState<TestimonialData[]>([]);
-	const [loading, setLoading] = React.useState(true);
+	const [testimonials, setTestimonials] = React.useState<TestimonialData[]>(initialData || []);
 	const [isModalOpen, setIsModalOpen] = React.useState(false);
 
 	React.useEffect(() => {
+		if (initialData) return;
 		const fetchTestimonials = async () => {
 			try {
-				const res = await apiFetch('/comments', {
+				const base_url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+				const res = await fetch(`${base_url}/api/comments`, {
 					headers: { 'lang': locale }
 				});
 				if (res.ok) {
@@ -49,20 +50,10 @@ const Testimonials = ({ title, ShareYourExperience }: { title: string, ShareYour
 				}
 			} catch (error) {
 				console.error('Failed to fetch testimonials:', error);
-			} finally {
-				setLoading(false);
 			}
 		};
 		fetchTestimonials();
-	}, [locale]);
-
-	if (loading) {
-		return (
-			<div className="flex justify-center py-20">
-				<div className="w-8 h-8 border-4 border-Brown-color border-t-transparent rounded-full animate-spin"></div>
-			</div>
-		);
-	}
+	}, [locale, initialData]);
 
 	if (testimonials.length === 0) return null;
 
@@ -115,7 +106,13 @@ const Testimonials = ({ title, ShareYourExperience }: { title: string, ShareYour
 				</div>
 				<div>
 					<h4 className="font-semibold text-foreground text-sm leading-none mb-1">{item.name}</h4>
-					<span className="text-foreground/70 text-xs">{new Date(item.createdAt).toLocaleDateString(locale)}</span>
+					<span className="text-foreground/70 text-xs">
+						{new Date(item.createdAt).toLocaleDateString(locale, {
+							day: 'numeric',
+							month: 'long',
+							year: 'numeric'
+						})}
+					</span>
 				</div>
 			</div>
 		</div>
