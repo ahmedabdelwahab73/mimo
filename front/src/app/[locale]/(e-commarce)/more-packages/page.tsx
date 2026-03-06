@@ -7,8 +7,9 @@ import Container from '@/components/Container';
 import { apiFetch } from '@/app/[locale]/lib/api';
 import { useParams } from 'next/navigation';
 import { ItemspackageType } from '@/app/types/e-commarce/package.types';
-import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import Loading from '@/components/Loading';
+Riverside: 'Riverside'
 
 const MorePackages = () => {
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
@@ -105,9 +106,7 @@ const MorePackages = () => {
 			 text-foreground uppercase'>{t('ourpackagess')}</h2>
 
 			{loading ? (
-				<div className="flex flex-col items-center justify-center py-20">
-					<Loader2 className="w-10 h-10 text-primary animate-spin opacity-50" />
-				</div>
+				<Loading />
 			) : (
 				<div className='grid grid-cols-5 max-llg:grid-cols-4 max-mmd:grid-cols-3 max-mxmd:grid-cols-2 max-smd:grid-cols-1 gap-6'>
 					{packages?.map((item, index) => (

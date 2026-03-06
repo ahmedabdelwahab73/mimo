@@ -94,11 +94,6 @@ const DashAside = () => {
 			icon: <MessageSquare size={20} />,
 			href: '/comments'
 		},
-		{
-			label: 'شركاء النجاح',
-			icon: <ImageIcon size={20} />,
-			href: '/brands'
-		}
 	]
 
 	return (

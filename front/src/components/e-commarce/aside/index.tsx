@@ -148,17 +148,6 @@ const Aside = ({ logoData }: { logoData?: { imageLight: string, imageDark: strin
 									 w-0 h-full bg-foreground/90 transition-all duration-400 ease-out group-hover:w-full -z-10`}></span>
 								</Link>
 								<Link
-									href="/mimo"
-									className="text-md w-full font-medium text-foreground relative group overflow-hidden px-6 py-3 z-10 mt-0"
-									onClick={toggleAside}
-								>
-									<span className="relative z-10 group-hover:text-background transition-colors duration-300">
-										{t('contact')}
-									</span>
-									<span className={`absolute top-0 ${isRtl ? 'right-0' : 'left-0'}
-									 w-0 h-full bg-foreground/90 transition-all duration-400 ease-out group-hover:w-full -z-10`}></span>
-								</Link>
-								<Link
 									href="/booking/non"
 									className="text-md w-full font-medium text-foreground relative group overflow-hidden px-6 py-3 z-10 mt-0"
 									onClick={toggleAside}

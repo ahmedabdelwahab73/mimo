@@ -127,7 +127,7 @@ const Package = async ({ params }: Props) => {
 
 				{/* Main Image */}
 				{packageItem.Defaultimage && (
-					<div className=" h-[50vh]">
+					<div className="relative h-[50vh]">
 						<Image
 							src={packageItem.Defaultimage}
 							alt={packageItem.title}

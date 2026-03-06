@@ -22,7 +22,7 @@ const Header = ({ logoData }: { logoData?: { imageLight: string, imageDark: stri
 	const { toggleAside } = useAside();
 	const { isDark, isMounted } = useDarkMode();
 	const [isReviewOpen, setIsReviewOpen] = useState(false);
-	const isBookingPage = pathname.includes('/booking') || pathname.includes('/custom-package') || pathname.includes('/privacy') || pathname.includes('/terms') || pathname.includes('/about');
+	const isBookingPage = pathname.includes('/booking') || pathname.includes('/custom-package') || pathname.includes('/privacy') || pathname.includes('/terms') || pathname.includes('/about') || pathname.includes('/more-packages');
 
 	const [dynamicLogoData] = useState<{ imageLight: string, imageDark: string } | null>(logoData || null);
 

@@ -60,8 +60,10 @@ export default async function EcommerceLayout({
 			<ScrollDownIndicator />
 			<Aside logoData={logoData} />
 			<Header logoData={logoData} />
-			<main className="h-[100vh] overflow-auto main-element">
-				{children}
+			<main className="h-[100vh] overflow-auto main-element flex flex-col">
+				<div className="flex-1">
+					{children}
+				</div>
 				<Footer logoData={logoData} />
 			</main>
 		</EcommerceProvider>
