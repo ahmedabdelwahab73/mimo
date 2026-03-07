@@ -29,20 +29,20 @@ const createUploadMiddleware = (folderName) => {
 
 	return multer({
 		storage: storage,
-		limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+		limits: { fileSize: 20 * 1024 * 1024 } // 20MB limit
 	});
 };
 
 const multerMemoryUpload = multer({
 	storage: multer.memoryStorage(),
-	limits: { fileSize: 5 * 1024 * 1024 }
+	limits: { fileSize: 20 * 1024 * 1024 }
 });
 
 const uploadBufferToCloudinary = async (buffer, folderName) => {
 	// First, significantly compress and optimize the image locally in Node's memory using sharp
 	// This shrinks a 5MB buffer to ~100-200KB before it's sent over the network to Cloudinary
 	const optimizedBuffer = await sharp(buffer)
-		.resize({ width: 1920, withoutEnlargement: true })
+		.resize({ width: 2560, withoutEnlargement: true })
 		.webp({ quality: 100 })
 		.toBuffer();
 
