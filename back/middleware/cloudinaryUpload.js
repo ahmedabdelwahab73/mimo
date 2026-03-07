@@ -42,7 +42,7 @@ const uploadBufferToCloudinary = async (buffer, folderName) => {
 	// First, significantly compress and optimize the image locally in Node's memory using sharp
 	// This shrinks a 5MB buffer to ~100-200KB before it's sent over the network to Cloudinary
 	const optimizedBuffer = await sharp(buffer)
-		.resize({ width: 2560, withoutEnlargement: true })
+		.resize({ width: 4000, withoutEnlargement: true })
 		.webp({ quality: 100 })
 		.toBuffer();
 

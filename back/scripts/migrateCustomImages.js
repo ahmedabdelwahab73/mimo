@@ -15,7 +15,7 @@ const MONGO_URI = process.env.MONGO_URI;
 const uploadBufferToCloudinary = async (buffer, folderName, originalFilename) => {
 	// Compress and optimize
 	const optimizedBuffer = await sharp(buffer)
-		.resize({ width: 2560, withoutEnlargement: true })
+		.resize({ width: 4000, withoutEnlargement: true })
 		.webp({ quality: 100 })
 		.toBuffer();
 
