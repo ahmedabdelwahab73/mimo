@@ -34,30 +34,12 @@ const SliderModal = ({ setModalOpen, editingSlider, formData, setFormData, handl
 	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (file) {
-			try {
-				// Compress slider image to max 1920x1080
-				const compressedBlob = await compressImage(file, 1920, 1080, 0.8);
-				const compressedFile = new File([compressedBlob], file.name, {
-					type: 'image/jpeg',
-					lastModified: Date.now(),
-				});
-
-				setFormData({ ...formData, image: compressedFile });
-				const reader = new FileReader();
-				reader.onloadend = () => {
-					setPreviewUrl(reader.result as string);
-				};
-				reader.readAsDataURL(compressedFile);
-			} catch (error) {
-				console.error('Image compression failed:', error);
-				// Fallback to original file
-				setFormData({ ...formData, image: file });
-				const reader = new FileReader();
-				reader.onloadend = () => {
-					setPreviewUrl(reader.result as string);
-				};
-				reader.readAsDataURL(file);
-			}
+			setFormData({ ...formData, image: file });
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				setPreviewUrl(reader.result as string);
+			};
+			reader.readAsDataURL(file);
 		}
 	};
 

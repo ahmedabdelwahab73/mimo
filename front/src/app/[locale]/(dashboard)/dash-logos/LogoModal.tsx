@@ -89,37 +89,18 @@ const LogoModal = ({ setModalOpen, editingLogo, formData, setFormData, handleSub
 	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, type: 'light' | 'dark') => {
 		const file = e.target.files?.[0];
 		if (file) {
-			try {
-				// Compress image to max 800px for logos
-				const compressedBlob = await compressImage(file, 800, 800, 0.7);
-				const compressedFile = new File([compressedBlob], file.name, {
-					type: file.type,
-					lastModified: Date.now(),
-				});
-
-				if (type === 'light') {
-					setFormData({ ...formData, imageLight: compressedFile });
-					setErrors(prev => ({ ...prev, light: undefined }));
-					const reader = new FileReader();
-					reader.onloadend = () => setPreviewLight(reader.result as string);
-					reader.readAsDataURL(compressedFile);
-				} else {
-					setFormData({ ...formData, imageDark: compressedFile });
-					setErrors(prev => ({ ...prev, dark: undefined }));
-					const reader = new FileReader();
-					reader.onloadend = () => setPreviewDark(reader.result as string);
-					reader.readAsDataURL(compressedFile);
-				}
-			} catch (error) {
-				console.error('Image compression failed:', error);
-				// Fallback to original file if compression fails
-				if (type === 'light') {
-					setFormData({ ...formData, imageLight: file });
-					setErrors(prev => ({ ...prev, light: undefined }));
-				} else {
-					setFormData({ ...formData, imageDark: file });
-					setErrors(prev => ({ ...prev, dark: undefined }));
-				}
+			if (type === 'light') {
+				setFormData({ ...formData, imageLight: file });
+				setErrors(prev => ({ ...prev, light: undefined }));
+				const reader = new FileReader();
+				reader.onloadend = () => setPreviewLight(reader.result as string);
+				reader.readAsDataURL(file);
+			} else {
+				setFormData({ ...formData, imageDark: file });
+				setErrors(prev => ({ ...prev, dark: undefined }));
+				const reader = new FileReader();
+				reader.onloadend = () => setPreviewDark(reader.result as string);
+				reader.readAsDataURL(file);
 			}
 		}
 	};

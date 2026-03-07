@@ -62,29 +62,10 @@ const CustomPackageImageModal = ({ setModalOpen, editingGroup, formData, setForm
 		}
 	};
 
-	const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files && e.target.files.length > 0) {
 			const fileArray = Array.from(e.target.files);
-			try {
-				const compressedFiles = await Promise.all(
-					fileArray.map(async (file) => {
-						try {
-							const blob = await compressImage(file, 1200, 1200, 0.7);
-							return new File([blob], file.name, {
-								type: 'image/jpeg',
-								lastModified: Date.now(),
-							});
-						} catch (err) {
-							console.error(`Compression failed for ${file.name}`, err);
-							return file;
-						}
-					})
-				);
-				setFormData({ ...formData, images: [...formData.images, ...compressedFiles] });
-			} catch (error) {
-				console.error('Group image compression error:', error);
-				setFormData({ ...formData, images: [...formData.images, ...fileArray] });
-			}
+			setFormData({ ...formData, images: [...formData.images, ...fileArray] });
 		}
 	}
 

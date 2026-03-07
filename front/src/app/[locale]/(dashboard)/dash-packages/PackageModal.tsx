@@ -336,20 +336,9 @@ const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, han
 											type="file"
 											accept="image/*"
 											className="hidden"
-											onChange={async (e) => {
+											onChange={(e) => {
 												if (e.target.files && e.target.files[0]) {
-													const file = e.target.files[0];
-													try {
-														const compressedBlob = await compressImage(file, 1200, 1200, 0.8);
-														const compressedFile = new File([compressedBlob], file.name, {
-															type: 'image/jpeg',
-															lastModified: Date.now(),
-														});
-														setFormData({ ...formData, default_image: compressedFile });
-													} catch (error) {
-														console.error('Main image compression failed:', error);
-														setFormData({ ...formData, default_image: file });
-													}
+													setFormData({ ...formData, default_image: e.target.files[0] });
 												}
 											}}
 										/>
@@ -404,35 +393,13 @@ const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, han
 										accept="image/*"
 										multiple
 										className="hidden"
-										onChange={async (e) => {
+										onChange={(e) => {
 											if (e.target.files) {
 												const filesArray = Array.from(e.target.files);
-												try {
-													const compressedFiles = await Promise.all(
-														filesArray.map(async (file) => {
-															try {
-																const blob = await compressImage(file, 1200, 1200, 0.7);
-																return new File([blob], file.name, {
-																	type: 'image/jpeg',
-																	lastModified: Date.now(),
-																});
-															} catch (err) {
-																console.error(`Compression failed for ${file.name}`, err);
-																return file;
-															}
-														})
-													);
-													setFormData({
-														...formData,
-														newGalleryFiles: [...(formData.newGalleryFiles || []), ...compressedFiles]
-													});
-												} catch (error) {
-													console.error('Gallery compression error:', error);
-													setFormData({
-														...formData,
-														newGalleryFiles: [...(formData.newGalleryFiles || []), ...filesArray]
-													});
-												}
+												setFormData({
+													...formData,
+													newGalleryFiles: [...(formData.newGalleryFiles || []), ...filesArray]
+												});
 											}
 										}}
 									/>
