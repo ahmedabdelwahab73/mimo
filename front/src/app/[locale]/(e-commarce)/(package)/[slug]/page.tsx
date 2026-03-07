@@ -133,7 +133,7 @@ const Package = async ({ params }: Props) => {
 							alt={packageItem.title}
 							fill
 							sizes="100vw"
-							quality={70}
+							quality={100}
 							className="object-cover"
 							priority
 						/>
@@ -154,7 +154,7 @@ const Package = async ({ params }: Props) => {
 									alt={`${packageItem.title}`}
 									fill
 									sizes="(max-width: 768px) 300px, 400px"
-									quality={60}
+									quality={100}
 									className="object-cover transition-transform duration-500 group-hover:scale-110"
 								/>
 								<div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

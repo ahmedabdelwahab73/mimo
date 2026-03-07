@@ -5,6 +5,8 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 import { Pagination, Autoplay } from 'swiper/modules'
 import { Loader2 } from 'lucide-react';
 
+import Image from 'next/image';
+
 // Import Swiper styles
 import 'swiper/css'
 import 'swiper/css/pagination'
@@ -59,10 +61,13 @@ const OtherImageSwiger = ({ images, isAr, title }: { images: string[], isAr: boo
 			{images.map((img: string, i: number) => (
 				<SwiperSlide key={i} className="h-auto! py-2">
 					<div key={i} className="relative aspect-square rounded-[1.5rem] overflow-hidden shadow-lg border border-border group">
-						<img
+						<Image
 							src={img}
 							alt={`${title} ${i + 1}`}
-							className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+							fill
+							quality={100}
+							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							className="object-cover transition-transform duration-500 group-hover:scale-110"
 						/>
 						<div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 					</div>

@@ -18,7 +18,7 @@ const LandingFrame = ({ slideImage, priority = false, apiUrl }: IProps) => {
 				fill
 				priority={priority}
 				{...(priority ? { fetchPriority: "high" } : {})}
-				quality={70}
+				quality={100}
 				sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
 				className="object-cover object-center"
 			/>

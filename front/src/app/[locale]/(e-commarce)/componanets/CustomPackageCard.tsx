@@ -48,7 +48,7 @@ const CustomPackageCard = ({ customPackageImages, DesignYourPackage, DesignYourP
 										src={img.startsWith('/uploads') || img.startsWith('//uploads') ? `${apiUrl}${img}` : img}
 										alt={`Custom Package bg ${i}`}
 										fill
-										quality={60}
+										quality={100}
 										className="object-cover"
 										sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
 									/>

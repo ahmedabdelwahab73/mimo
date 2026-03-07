@@ -32,7 +32,7 @@ const PackageCard = ({ item, ViewDetails, priority, locale, isScrollActive = fal
 					fill
 					priority={priority}
 					{...(priority ? { fetchPriority: "high" } : {}) as any}
-					quality={60}
+					quality={100}
 					className='object-cover transition-transform duration-700 group-hover:scale-110'
 					sizes="(max-width: 768px) 100vw, 33vw"
 				/>

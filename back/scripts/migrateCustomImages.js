@@ -16,7 +16,7 @@ const uploadBufferToCloudinary = async (buffer, folderName, originalFilename) =>
 	// Compress and optimize
 	const optimizedBuffer = await sharp(buffer)
 		.resize({ width: 1200, withoutEnlargement: true })
-		.webp({ quality: 80 })
+		.webp({ quality: 100 })
 		.toBuffer();
 
 	return new Promise((resolve, reject) => {
