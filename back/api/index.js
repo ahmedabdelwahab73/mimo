@@ -54,9 +54,32 @@ const connectDB = async () => {
 };
 
 // Database Connection Middleware (Apply before routes)
+const seedDefaultAdmin = async () => {
+	try {
+		const userCount = await User.countDocuments();
+		if (userCount === 0) {
+			console.log('🚀 No users found. Seeding default admin...');
+			const admin = new User({
+				username: 'admin',
+				password: 'admin123',
+				role: 'admin'
+			});
+			await admin.save();
+			console.log('✅ Default admin user created successfully!');
+			console.log('-----------------------------------');
+			console.log('Username: admin');
+			console.log('Password: admin123');
+			console.log('-----------------------------------');
+		}
+	} catch (err) {
+		console.error('❌ Error seeding default admin:', err.message);
+	}
+};
+
 app.use(async (req, res, next) => {
 	try {
 		await connectDB();
+		await seedDefaultAdmin();
 		next();
 	} catch (err) {
 		next(err);
