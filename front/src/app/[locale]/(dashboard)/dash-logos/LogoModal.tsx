@@ -1,4 +1,5 @@
 import { Edit2, ImageIcon, Plus, Save, X, Upload } from 'lucide-react'
+import Image from 'next/image'
 import React, { useRef, useState, useEffect } from 'react'
 import StatusToggle from '../componanets/StatusToggle';
 import { compressImage } from '@/utils/imageUtils';
@@ -92,7 +93,7 @@ const LogoModal = ({ setModalOpen, editingLogo, formData, setFormData, handleSub
 				// Compress image to max 800px for logos
 				const compressedBlob = await compressImage(file, 800, 800, 0.7);
 				const compressedFile = new File([compressedBlob], file.name, {
-					type: 'image/jpeg',
+					type: file.type,
 					lastModified: Date.now(),
 				});
 
@@ -160,7 +161,14 @@ const LogoModal = ({ setModalOpen, editingLogo, formData, setFormData, handleSub
 								<div className={`w-full aspect-video rounded-2xl border-2 border-dashed ${errors.light ? 'border-red-500 bg-red-50/50' : (previewLight ? 'border-primary/50' : 'border-border')} hover:border-primary transition-all overflow-hidden flex flex-col items-center justify-center bg-gray-300 dark:bg-gray-400`}>
 									{previewLight ? (
 										<>
-											<img src={previewLight} alt="Preview Light" className="w-full h-full object-contain p-4" />
+											<Image
+												src={previewLight}
+												alt="Preview Light"
+												width={200}
+												height={100}
+												className="w-full h-full object-contain p-4"
+												unoptimized
+											/>
 											<div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
 												<Upload className="text-white w-8 h-8" />
 											</div>
@@ -195,7 +203,14 @@ const LogoModal = ({ setModalOpen, editingLogo, formData, setFormData, handleSub
 								<div className={`w-full aspect-video rounded-2xl border-2 border-dashed ${errors.dark ? 'border-red-500 bg-red-50/50' : (previewDark ? 'border-primary/50' : 'border-border')} hover:border-primary transition-all overflow-hidden flex flex-col items-center justify-center bg-gray-700 dark:bg-gray-600`}>
 									{previewDark ? (
 										<>
-											<img src={previewDark} alt="Preview Dark" className="w-full h-full object-contain p-4" />
+											<Image
+												src={previewDark}
+												alt="Preview Dark"
+												width={200}
+												height={100}
+												className="w-full h-full object-contain p-4"
+												unoptimized
+											/>
 											<div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
 												<Upload className="text-white w-8 h-8" />
 											</div>

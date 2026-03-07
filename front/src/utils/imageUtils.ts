@@ -55,7 +55,7 @@ export const compressImage = (
               reject(new Error('Canvas toBlob failed'));
             }
           },
-          'image/jpeg',
+          file.type,
           quality
         );
       };
