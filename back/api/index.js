@@ -30,31 +30,13 @@ app.use(express.static('public'));
 // =============================================
 // MongoDB Connection (Serverless Optimization)
 // =============================================
-const MONGO_URI = process.env.MONGO_URI;
-let cachedConnection = null;
-
-const connectDB = async () => {
-	if (cachedConnection && mongoose.connection.readyState === 1) {
-		return cachedConnection;
-	}
-	if (!MONGO_URI) {
-		throw new Error('MONGO_URI is not defined in environment variables');
-	}
-	try {
-		console.log('⏳ Connecting to MongoDB...');
-		cachedConnection = await mongoose.connect(MONGO_URI, {
-			serverSelectionTimeoutMS: 5000,
-		});
-		console.log('✅ Connected to MongoDB successfully');
-		return cachedConnection;
-	} catch (err) {
-		console.error('❌ MongoDB connection error:', err.message);
-		throw err;
-	}
-};
+const connectDB = require('../lib/db');
 
 // Database Connection Middleware (Apply before routes)
+let isSeeded = false;
+
 const seedDefaultAdmin = async () => {
+	if (isSeeded) return;
 	try {
 		const userCount = await User.countDocuments();
 		if (userCount === 0) {
@@ -71,6 +53,7 @@ const seedDefaultAdmin = async () => {
 			console.log('Password: admin123');
 			console.log('-----------------------------------');
 		}
+		isSeeded = true;
 	} catch (err) {
 		console.error('❌ Error seeding default admin:', err.message);
 	}
