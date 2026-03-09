@@ -18,7 +18,7 @@ const StatusToggle = ({
 	const isChecked = typeof active === 'number' ? active === 1 : active;
 
 	return (
-		<div className="space-y-4 pt-4 border-t border-border">
+		<div className="space-y-4 pt-4 border-t border-border w-full">
 			<div className="flex items-center justify-between p-4 bg-secondary/50 rounded-2xl border border-blue-500">
 				<div>
 					<h4 className="font-bold text-sm">{label}</h4>

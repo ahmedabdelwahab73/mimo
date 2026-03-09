@@ -54,6 +54,8 @@ const Mainpage = async () => {
 				price: item.price,
 				offer: item.offer,
 				subnameEn: item['subname-en'],
+				mostseller: item.mostseller,
+				rate: item.rate,
 				image: item.default_image
 					? (item.default_image.startsWith('/uploads')
 						? `${apiUrl}${item.default_image}`

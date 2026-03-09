@@ -4,6 +4,7 @@ import HeadingTitle from '../../../componanets/HeadingTitle';
 import Link from 'next/link';
 import { PackageDetailsType } from '@/app/types';
 import { getTranslations } from 'next-intl/server';
+import { Star } from 'lucide-react';
 import Subname from '../../../componanets/Subname';
 
 type IProps = {
@@ -102,6 +103,7 @@ const PackageDetailsBooking = ({ packageItem, t, locale }: IProps) => {
 												</span>
 											)}
 										</div>
+
 									</div>
 								</div>
 

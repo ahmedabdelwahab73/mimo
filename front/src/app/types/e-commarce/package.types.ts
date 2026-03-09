@@ -8,6 +8,8 @@ export type ItemspackageType = {
 	image: string;
 	subnameEn: string;
 	number?: string | number;
+	mostseller?: number;
+	rate?: number;
 }
 
 export type packageCardType = {
@@ -30,4 +32,6 @@ export type PackageDetailsType = {
 	Defaultimage: string | null;
 	images: string[];
 	number?: string | number;
+	mostseller?: number;
+	rate?: number;
 }

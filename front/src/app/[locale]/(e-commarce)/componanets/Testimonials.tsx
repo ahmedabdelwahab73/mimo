@@ -82,12 +82,12 @@ const Testimonials = ({ title, ShareYourExperience, initialData }: { title: stri
 			</div>
 
 			{/* Content */}
-			<p className="text-foreground/80 leading-relaxed italic mb-8 flex-grow">
+			<p className="text-foreground/80 leading-relaxed italic mb-0 flex-grow">
 				"{item.body}"
 			</p>
 
 			{/* Author */}
-			<div className="flex items-center gap-4 border-t border-border/30 pt-6">
+			<div className="flex items-center gap-4 border-t border-border/30 pt-2">
 				<div className="w-10 h-10 rounded-full bg-[#e3e2e1] flex items-center justify-center 
 				text-Brown-color font-bold text-sm overflow-hidden shrink-0">
 					{item.image ? (

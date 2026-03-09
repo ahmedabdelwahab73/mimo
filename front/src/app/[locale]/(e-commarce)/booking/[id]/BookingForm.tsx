@@ -217,22 +217,13 @@ ${packageSection}
 							<label className="block text-sm font-medium mb-2 text-foreground/80 group-focus-within:text-[#b0a090] transition-colors ps-1">
 								{t("Booking.dateLocation")}
 							</label>
-							<div className="relative cursor-pointer" onClick={(e) => {
-								const input = e.currentTarget.querySelector('input');
-								if (input && 'showPicker' in input) {
-									try {
-										(input as any).showPicker();
-									} catch (err) {
-										// showPicker may throw if not triggered by user interaction or not supported
-									}
-								}
-							}}>
+							<div className="relative">
 								<Calendar className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/40 group-focus-within:text-[#b0a090] transition-colors pointer-events-none z-10" />
 								<input
-									type="date"
-									dir="ltr"
+									type="text"
 									{...register("dateLocation", { required: t("Booking.dateLocationRequired") })}
-									className="w-full ps-12 pe-4 py-3 bg-foreground/5 border border-border/50 rounded-2xl outline-none focus:border-[#b0a090] focus:ring-4 focus:ring-[#b0a090]/10 transition-all text-foreground cursor-pointer [&::-webkit-calendar-picker-indicator]:hidden"
+									className="w-full ps-12 pe-4 py-3 bg-foreground/5 border border-border/50 rounded-2xl outline-none focus:border-[#b0a090] focus:ring-4 focus:ring-[#b0a090]/10 transition-all text-foreground"
+									placeholder={locale === 'ar' ? "تاريخ ومكان التصوير" : "Date and Location"}
 								/>
 							</div>
 							{errors.dateLocation && <span className="text-red-500 text-xs mt-1 absolute -bottom-5 start-1">{errors.dateLocation.message}</span>}
@@ -261,7 +252,7 @@ ${packageSection}
 								<div className="relative">
 									<Phone className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/40 group-focus-within:text-[#b0a090] transition-colors" />
 									<input
-										{...register("phone2", { required: t("Booking.phone2Required") })}
+										// {...register("phone2", { required: t("Booking.phone2Required") })}
 										className="w-full ps-12 pe-4 py-3 bg-foreground/5 border border-border/50 rounded-2xl outline-none focus:border-[#b0a090] focus:ring-4 focus:ring-[#b0a090]/10 transition-all placeholder:text-foreground/30"
 										placeholder="01xxxxxxxxx"
 									/>
@@ -414,7 +405,7 @@ ${packageSection}
 							<div className="relative">
 								<MapPin className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/40 group-focus-within:text-[#b0a090] transition-colors" />
 								<input
-									{...register("photoshootLocation", { required: t("Booking.photoshootLocationRequired") })}
+									// {...register("photoshootLocation", { required: t("Booking.photoshootLocationRequired") })}
 									className="w-full ps-12 pe-4 py-3 bg-foreground/5 border border-border/50 rounded-2xl outline-none focus:border-[#b0a090] focus:ring-4 focus:ring-[#b0a090]/10 transition-all placeholder:text-foreground/30"
 								/>
 							</div>
@@ -428,7 +419,7 @@ ${packageSection}
 							<div className="relative">
 								<MapPin className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/40 group-focus-within:text-[#b0a090] transition-colors" />
 								<input
-									{...register("photoshootLocation2")}
+									// {...register("photoshootLocation2")}
 									className="w-full ps-12 pe-4 py-3 bg-foreground/5 border border-border/50 rounded-2xl outline-none focus:border-[#b0a090] focus:ring-4 focus:ring-[#b0a090]/10 transition-all placeholder:text-foreground/30"
 								/>
 							</div>
@@ -442,7 +433,7 @@ ${packageSection}
 								<Brush size={24} className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/40 group-focus-within:text-[#b0a090]
 								 transition-colors"  />
 								<input
-									{...register("makeupDetails", { required: t("Booking.makeupDetailsRequired") })}
+									// {...register("makeupDetails", { required: t("Booking.makeupDetailsRequired") })}
 									className="w-full ps-12 pe-4 py-3 bg-foreground/5 border border-border/50 rounded-2xl outline-none focus:border-[#b0a090] focus:ring-4 focus:ring-[#b0a090]/10 transition-all placeholder:text-foreground/30"
 								/>
 							</div>

@@ -43,6 +43,11 @@ const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, han
 			newErrors.offer = 'يجب أن يكون رقماً صحيحاً';
 		}
 
+		const rateStr = String(formData.rate ?? '').trim();
+		if (rateStr !== '' && (isNaN(Number(rateStr)) || !Number.isInteger(Number(rateStr)) || Number(rateStr) < 0 || Number(rateStr) > 5)) {
+			newErrors.rate = 'يجب أن يكون التقييم رقماً صحيحاً بين 0 و 5';
+		}
+
 		const pointArs = formData['point-ar'] || []
 		const pointEns = formData['point-en'] || []
 		const maxPoints = Math.max(pointArs.length, pointEns.length)
@@ -303,7 +308,36 @@ const PackageModal = ({ setModalOpen, editingPackage, formData, setFormData, han
 								</div>
 								{errors.offer && <p className="text-xs text-red-500 font-bold mt-1">{errors.offer}</p>}
 							</div>
-							<div className="space-y-2 col-span-1 md:col-span-2 mt-2">
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-1 md:col-span-2">
+								<div className="space-y-2">
+									<label className="text-sm font-bold text-muted-foreground ml-1 block">التقييم (0-5)</label>
+									<div className="relative">
+										<input
+											type="number"
+											step="1"
+											min="0"
+											max="5"
+											value={formData.rate ?? ''}
+											onChange={(e) => {
+												if (errors.rate) setErrors({ ...errors, rate: '' })
+												setFormData({ ...formData, rate: e.target.value ? parseInt(e.target.value) : '' })
+											}}
+											className={`w-full bg-background border-1 ${errors.rate ? 'border-red-500 bg-red-50' : 'border-blue-500/70 focus:border-blue-500 focus:border'} rounded-xl px-4 py-3 outline-none focus:shadow-none transition-all text-sm font-black shadow-sm`}
+											placeholder="مثال: 5"
+										/>
+									</div>
+									{errors.rate && <p className="text-xs text-red-500 font-bold mt-1">{errors.rate}</p>}
+								</div>
+								<div className="flex items-center">
+									<StatusToggle
+										active={formData.mostseller}
+										onChange={(checked: boolean) => setFormData({ ...formData, mostseller: checked ? 1 : 0 })}
+										label="الأكثر طلباً"
+										description="تحديد الباقة كأحد الخيارات الأكثر طلباً"
+									/>
+								</div>
+							</div>
+							<div className="space-y-2 col-span-1 md:col-span-2">
 								<StatusToggle
 									active={formData.active}
 									onChange={(checked: boolean) => setFormData({ ...formData, active: checked ? 1 : 0 })}

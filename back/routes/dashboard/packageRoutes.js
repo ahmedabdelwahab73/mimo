@@ -34,6 +34,8 @@ router.post('/', packageUpload, async (req, res) => {
 			offer,
 			sort,
 			active,
+			mostseller,
+			rate,
 		} = req.body;
 
 		// Parse JSON strings back to arrays
@@ -69,6 +71,8 @@ router.post('/', packageUpload, async (req, res) => {
 			offer: parseFloat(offer) || 0,
 			sort: parseInt(sort) || 0,
 			active: active !== undefined ? parseInt(active) : 1,
+			mostseller: mostseller !== undefined ? parseInt(mostseller) : 0,
+			rate: parseFloat(rate) || 0,
 			default_image,
 			images,
 			'point-ar': pointAr,
@@ -101,6 +105,8 @@ router.put('/:id', packageUpload, async (req, res) => {
 			offer,
 			sort,
 			active,
+			mostseller,
+			rate,
 			deletedImages
 		} = req.body;
 
@@ -122,6 +128,8 @@ router.put('/:id', packageUpload, async (req, res) => {
 			pkg.sort = parsedSort;
 		}
 		if (active !== undefined) pkg.active = parseInt(active);
+		if (mostseller !== undefined) pkg.mostseller = parseInt(mostseller);
+		if (rate !== undefined) pkg.rate = parseFloat(rate);
 
 		if (req.body['point-ar']) pkg['point-ar'] = JSON.parse(req.body['point-ar']);
 		if (req.body['point-en']) pkg['point-en'] = JSON.parse(req.body['point-en']);
@@ -176,6 +184,22 @@ router.patch('/:id/active', async (req, res) => {
 			return res.status(404).json({ message: 'Package not found' });
 		}
 		pkg.active = pkg.active === 1 ? 0 : 1;
+		const updatedPackage = await pkg.save();
+		res.json(updatedPackage);
+	} catch (err) {
+		res.status(400).json({ message: err.message });
+	}
+});
+
+// @route   PATCH /api/dashboard/packages/:id/mostseller
+// @desc    Toggle most requested status
+router.patch('/:id/mostseller', async (req, res) => {
+	try {
+		const pkg = await Package.findById(req.params.id);
+		if (!pkg) {
+			return res.status(404).json({ message: 'Package not found' });
+		}
+		pkg.mostseller = pkg.mostseller === 1 ? 0 : 1;
 		const updatedPackage = await pkg.save();
 		res.json(updatedPackage);
 	} catch (err) {

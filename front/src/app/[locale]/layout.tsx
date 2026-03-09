@@ -1,3 +1,4 @@
+import { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -37,6 +38,45 @@ export function generateStaticParams() {
 	return routing.locales.map((locale) => ({ locale }));
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+	const { locale } = await params;
+	const isAr = locale === 'ar';
+
+	const title = isAr ? 'ميمو فوتوغرافى' : 'Mimo photography';
+	const description = isAr
+		? 'میمو فوتوغرافي - خدمات تصوير احترافية. حجز باقات التصوير بأفضل الجودات.'
+		: 'Mimo photography - Professional photography services. Book high quality photography packages.';
+
+	return {
+		metadataBase: new URL('https://mimo-flame.vercel.app'),
+		title: {
+			default: title,
+			template: `%s | ${title}`,
+		},
+		description: description,
+		keywords: isAr
+			? ['تصوير', 'ميمو', 'باقات تصوير', 'فوتوغرافي', 'جلسات تصوير', 'عروض تصوير']
+			: ['photography', 'Mimo', 'photography packages', 'photoshoots', 'photo offers'],
+		authors: [{ name: 'Mimo Photography' }],
+		creator: 'Mimo Photography',
+		openGraph: {
+			type: 'website',
+			locale: isAr ? 'ar_EG' : 'en_US',
+			url: `https://mimo-flame.vercel.app/${locale}`,
+			title: title,
+			description: description,
+			siteName: title,
+		},
+		alternates: {
+			canonical: `https://mimo-flame.vercel.app/${locale}`,
+			languages: {
+				'ar': 'https://mimo-flame.vercel.app/ar',
+				'en': 'https://mimo-flame.vercel.app/en',
+			},
+		},
+	};
+}
+
 export default async function LocaleLayout({
 	children,
 	params
@@ -64,6 +104,27 @@ export default async function LocaleLayout({
 
 	return (
 		<html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'} className={savedTheme} suppressHydrationWarning>
+			<head>
+				<script
+					type="application/ld+json"
+					dangerouslySetInnerHTML={{
+						__html: JSON.stringify({
+							"@context": "https://schema.org",
+							"@type": "WebSite",
+							"name": locale === 'ar' ? "ميمو فوتوغرافى" : "Mimo photography",
+							"url": "https://mimo-flame.vercel.app/",
+							"potentialAction": {
+								"@type": "SearchAction",
+								"target": {
+									"@type": "EntryPoint",
+									"urlTemplate": "https://mimo-flame.vercel.app/search?q={search_term_string}"
+								},
+								"query-input": "required name=search_term_string"
+							}
+						})
+					}}
+				/>
+			</head>
 			<body className={`
         ${openSans.variable} 
         ${firaCode.variable}

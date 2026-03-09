@@ -66,7 +66,8 @@ const Package = async ({ params }: Props) => {
 					Defaultimage: formatImg(data.default_image),
 					images: (data.images || []).map((img: string) => formatImg(img)).filter(Boolean),
 					number: data.number,
-
+					mostseller: data.mostseller,
+					rate: data.rate,
 				};
 			} else {
 				console.error(`[SERVER] API returned ${res.status} for packageId: ${idStr}`);
@@ -87,6 +88,8 @@ const Package = async ({ params }: Props) => {
 				subnameEn: item['subname-en'],
 				price: item.price,
 				offer: item.offer,
+				mostseller: item.mostseller,
+				rate: item.rate,
 				number: item.number,
 				image: item.default_image ? (item.default_image.startsWith('/uploads') ? `${apiUrl}${item.default_image}` : item.default_image) : null
 			}));

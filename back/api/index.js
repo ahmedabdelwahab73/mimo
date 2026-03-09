@@ -128,4 +128,20 @@ if (require.main === module || process.env.NODE_ENV !== 'production') {
 	const server = app.listen(PORT, () => {
 		console.log(`🚀 Server is running locally on http://localhost:${PORT}`);
 	});
+
+	// Handle Graceful Shutdown
+	const gracefulShutdown = async (signal) => {
+		console.log(`\n🛑 Received ${signal}. Closing MongoDB connection...`);
+		try {
+			await mongoose.connection.close();
+			console.log('✅ MongoDB connection closed.');
+			process.exit(0);
+		} catch (err) {
+			console.error('❌ Error during shutdown:', err.message);
+			process.exit(1);
+		}
+	};
+
+	process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+	process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 }

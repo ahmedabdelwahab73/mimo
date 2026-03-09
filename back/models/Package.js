@@ -10,6 +10,8 @@ const PackageSchema = new mongoose.Schema({
 	price: { type: Number, required: true },
 	offer: { type: Number, default: 0 },
 	active: { type: Number, default: 1 },
+	mostseller: { type: Number, default: 0 },
+	rate: { type: Number, default: 0 },
 	default_image: { type: String },
 	images: [{ type: String }],
 	'point-ar': [{ type: String }],

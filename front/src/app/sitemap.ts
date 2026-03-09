@@ -13,35 +13,44 @@ type Package = {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes = ['', '/about', '/booking/non', '/terms', '/privacy'];
 
-  // 1. Generate static routes for each locale
-  const sitemapEntries: MetadataRoute.Sitemap = [];
+  const sitemapEntries: MetadataRoute.Sitemap = [
+    {
+      url: `${baseUrl}/`, // Add root URL for Google Search Console to read the root directly
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 1.0,
+    }
+  ];
 
+  // 1️⃣ Static routes for each locale
   for (const locale of locales) {
     for (const route of staticRoutes) {
+      // Skip adding empty '' twice for the root
+      const url = route === '' ? `${baseUrl}/${locale}` : `${baseUrl}/${locale}${route}`;
       sitemapEntries.push({
-        url: `${baseUrl}/${locale}${route}`,
+        url,
         lastModified: new Date(),
         changeFrequency: route === '' ? 'daily' : 'monthly',
-        priority: route === '' ? 1 : 0.8,
+        priority: route === '' ? 1.0 : 0.8,
       });
     }
   }
 
-  // 2. Fetch dynamic packages to include in sitemap
-  try {
-    const res = await fetch(`${apiUrl}/api/home/packages`, {
-      headers: { 'lang': 'ar' },
-      next: { revalidate: 3600 } 
-    });
+  // 2️⃣ Dynamic packages
+  for (const locale of locales) {
+    try {
+      const res = await fetch(`${apiUrl}/api/home/packages`, {
+        headers: { 'lang': locale },
+        next: { revalidate: 3600 }
+      });
 
-    if (res.ok) {
-      const packages: Package[] = await res.json();
-      
-      for (const locale of locales) {
+      if (res.ok) {
+        const packages: Package[] = await res.json();
+
         for (const pkg of packages) {
           const name = locale === 'ar' ? pkg['name-ar'] : pkg['name-en'];
-          // Slug format logic from package details page: slug-id
-          const slug = `${name.replace(/\s+/g, '-').toLowerCase()}-${pkg._id}`;
+          // Remove special characters, spaces to dash, lowercase
+          const slug = `${name.replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').toLowerCase()}-${pkg._id}`;
           
           sitemapEntries.push({
             url: `${baseUrl}/${locale}/${slug}`,
@@ -51,9 +60,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           });
         }
       }
+    } catch (error) {
+      console.error(`Failed to fetch packages for locale ${locale}:`, error);
     }
-  } catch (error) {
-    console.error('Failed to fetch packages for sitemap:', error);
   }
 
   return sitemapEntries;

@@ -21,6 +21,8 @@ interface Package {
 	'point-ar': string[];
 	'point-en': string[];
 	active: number;
+	mostseller: number;
+	rate: number | '';
 	// Helper fields for the form state
 	newGalleryFiles?: File[];
 	deletedImages?: string[];
@@ -47,6 +49,8 @@ const DashPackages = () => {
 		'point-ar': [],
 		'point-en': [],
 		active: 1,
+		mostseller: 0,
+		rate: '',
 		newGalleryFiles: [],
 		deletedImages: []
 	})
@@ -86,6 +90,26 @@ const DashPackages = () => {
 			}
 		} catch (error) {
 			console.error('Error toggling status:', error)
+		}
+	}
+
+	const handleMostRequestedToggle = async (id: string) => {
+		try {
+			const res = await apiFetch(`/dashboard/packages/${id}/mostseller`, {
+				method: 'PATCH'
+			})
+			if (res.ok) {
+				fetchPackages();
+				// Trigger revalidation for packages
+				try {
+					const secret = 'mimo_secret_2026';
+					await fetch(`/api/revalidate?tag=packages&secret=${secret}`);
+				} catch (e) {
+					console.error('Revalidation failed', e);
+				}
+			}
+		} catch (error) {
+			console.error('Error toggling most requested status:', error)
 		}
 	}
 
@@ -136,6 +160,8 @@ const DashPackages = () => {
 				'point-ar': pkg['point-ar'] || [],
 				'point-en': pkg['point-en'] || [],
 				active: pkg.active !== undefined ? pkg.active : 1,
+				mostseller: pkg.mostseller !== undefined ? pkg.mostseller : 0,
+				rate: pkg.rate ?? '',
 				newGalleryFiles: [],
 				deletedImages: []
 			})
@@ -155,6 +181,8 @@ const DashPackages = () => {
 				'point-ar': [],
 				'point-en': [],
 				active: 1,
+				mostseller: 0,
+				rate: '',
 				newGalleryFiles: [],
 				deletedImages: []
 			})
@@ -179,6 +207,8 @@ const DashPackages = () => {
 			bodyData.append('offer', (formData.offer || 0).toString());
 			bodyData.append('sort', formData.sort.toString());
 			bodyData.append('active', formData.active.toString());
+			bodyData.append('mostseller', formData.mostseller.toString());
+			bodyData.append('rate', formData.rate.toString());
 			bodyData.append('point-ar', JSON.stringify(formData['point-ar']));
 			bodyData.append('point-en', JSON.stringify(formData['point-en']));
 
@@ -258,6 +288,8 @@ const DashPackages = () => {
 									<th className="px-6 py-5 text-center">الترتيب</th>
 									<th className="px-6 py-5 text-center">العدد</th>
 									<th className="px-6 py-5 text-center">السعر</th>
+									<th className="px-6 py-5 text-center">التقييم</th>
+									<th className="px-6 py-5 text-center">الأكثر طلباً</th>
 									<th className="px-6 py-5 text-center">الحالة</th>
 									<th className="px-6 py-5 text-center">الإجراءات</th>
 								</tr>
@@ -318,6 +350,20 @@ const DashPackages = () => {
 												{pkg.offer > 0 && <span className="text-[10px] text-orange-500 font-bold">-{pkg.offer} Offer</span>}
 											</div>
 										</td>
+										<td className="px-6 py-5 text-center font-bold text-xs text-amber-500">
+											{pkg.rate || 0} ⭐
+										</td>
+										<td className="px-6 py-5 text-center">
+											<button
+												onClick={() => handleMostRequestedToggle(pkg._id)}
+												className={`cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black transition-all border ${pkg.mostseller === 1
+													? 'bg-amber-500/10 text-amber-600 border-amber-500/20'
+													: 'bg-slate-500/10 text-slate-400 border-slate-500/20'
+													}`}>
+												<span className={`w-1.5 h-1.5 rounded-full ${pkg.mostseller === 1 ? 'bg-amber-500 animate-pulse' : 'bg-slate-400'}`}></span>
+												{pkg.mostseller === 1 ? 'الأكثر طلباً' : 'عادي'}
+											</button>
+										</td>
 										<td className="px-6 py-5 text-center">
 											<button
 												onClick={() => handleStatusToggle(pkg._id)}
@@ -341,8 +387,8 @@ const DashPackages = () => {
 													onClick={() => handleDelete(pkg._id)}
 													disabled={deletingId === pkg._id}
 													className={`cursor-pointer w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm ${deletingId === pkg._id
-															? 'bg-muted text-muted-foreground cursor-not-allowed'
-															: 'bg-rose-500/10 text-rose-600 hover:bg-rose-600 hover:text-white'
+														? 'bg-muted text-muted-foreground cursor-not-allowed'
+														: 'bg-rose-500/10 text-rose-600 hover:bg-rose-600 hover:text-white'
 														}`}
 												>
 													{deletingId === pkg._id ? (

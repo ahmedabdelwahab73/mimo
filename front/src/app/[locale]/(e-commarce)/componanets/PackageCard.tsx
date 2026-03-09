@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 import { packageCardType } from '@/app/types';
-import { Dot } from 'lucide-react';
+import { Dot, Star } from 'lucide-react';
 import Subname from './Subname';
 import { useTranslations } from 'next-intl';
 import OfferBtn from '../(package)/[slug]/componanent/OfferBtn';
@@ -15,6 +15,7 @@ interface PackageCardProps extends packageCardType {
 
 const PackageCard = ({ item, ViewDetails, priority, locale, isScrollActive = false }: PackageCardProps) => {
 	const t = useTranslations('HomePage');
+	console.log("item", item);
 
 	return (
 		<Link
@@ -49,6 +50,26 @@ const PackageCard = ({ item, ViewDetails, priority, locale, isScrollActive = fal
 				/>
 			)}
 
+			<div className="absolute top-2 left-4 z-10 flex flex-col gap-1 items-start px-2 py-1.5 rounded-full">
+				{(item.rate !== undefined && item.rate !== null) && (
+					<div className="rounded-full flex items-center gap-0.5">
+						{Array.from({ length: 5 }).map((_, index) => (
+							<Star
+								key={index}
+								size={10}
+								fill={index < Math.round(item.rate || 0) ? "#f59e0b" : "transparent"}
+								className={index < Math.round(item.rate || 0) ? "text-amber-500" : "text-gray-400"}
+							/>
+						))}
+					</div>
+				)}
+				{item.mostseller === 1 && (
+					<div className="head text-[6px] text-background font-bold drop-shadow-md text-center w-full">
+						<span>{locale === 'ar' ? 'الأكثر مبيعا' : 'Most Selling'}</span>
+					</div>
+				)}
+			</div>
+
 			{/* Overlay */}
 			<div className={`absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent 
 				transition-all duration-500 flex flex-col justify-end p-8 backdrop-blur-[2px]
@@ -62,7 +83,7 @@ const PackageCard = ({ item, ViewDetails, priority, locale, isScrollActive = fal
 							style={`text-2xl font-bold text-white`}
 						/>
 					</h3>
-					<div className='flex flex-wrap flex-col gap-2 mb-6'>
+					<div className='flex flex-wrap flex-col gap-2 mb-3'>
 						{item.points && item.points.slice(0, 6).map((point, i) => (
 							<div key={i} className='flex items-center gap-0 bg-white/10 w-fit backdrop-blur-md px-1 py-1 rounded-lg text-white text-[10px] font-medium border border-white/10'>
 								<Dot className='text-white' size={20} />
@@ -71,7 +92,7 @@ const PackageCard = ({ item, ViewDetails, priority, locale, isScrollActive = fal
 						))}
 						{item.points && item.points.length > 6 && (
 							<div className='text-white/60 text-[10px] font-bold mt-1 px-2 underline decoration-white/20 underline-offset-4 animate-pulse uppercase tracking-tighter italic'>
-								+ {item.points.length - 6} more features...
+								+ {item.points.length - 6} {t('moreFeatures')}
 							</div>
 						)}
 					</div>

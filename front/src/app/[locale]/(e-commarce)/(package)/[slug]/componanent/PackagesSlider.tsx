@@ -4,7 +4,7 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Navigation } from 'swiper/modules'
 import Link from 'next/link'
 import Image from 'next/image'
-import { MoveLeft, MoveRight, Loader2 } from 'lucide-react'
+import { MoveLeft, MoveRight, Loader2, Star } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 // Import Swiper styles
@@ -152,6 +152,25 @@ const PackagesSlider = ({
 											locale={locale}
 										/>
 									</h4>
+									<div className="absolute top-2 left-4 z-10 flex flex-col gap-1 items-start px-2 py-1.5 rounded-full">
+										{(item.rate !== undefined && item.rate !== null) && (
+											<div className="rounded-full flex items-center gap-0.5">
+												{Array.from({ length: 5 }).map((_, index) => (
+													<Star
+														key={index}
+														size={10}
+														fill={index < Math.round(item.rate || 0) ? "#f59e0b" : "transparent"}
+														className={index < Math.round(item.rate || 0) ? "text-amber-500" : "text-gray-400"}
+													/>
+												))}
+											</div>
+										)}
+										{item.mostseller === 1 && (
+											<div className="head text-[6px] text-background font-bold drop-shadow-md text-center w-full">
+												<span>{locale === 'ar' ? 'الأكثر مبيعا' : 'Most Selling'}</span>
+											</div>
+										)}
+									</div>
 
 									<div className="flex items-center justify-between border-t border-border/30 pt-4 mt-auto">
 										<div className="flex flex-col">
