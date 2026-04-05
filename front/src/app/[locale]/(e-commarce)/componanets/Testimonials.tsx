@@ -82,7 +82,7 @@ const Testimonials = ({ title, ShareYourExperience, initialData }: { title: stri
 			</div>
 
 			{/* Content */}
-			<p className="text-foreground/80 leading-relaxed italic mb-0 flex-grow">
+			<p className="text-foreground/80 leading-relaxed mb-0 flex-grow">
 				"{item.body}"
 			</p>
 

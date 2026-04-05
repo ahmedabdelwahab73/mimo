@@ -64,7 +64,7 @@ const PackageCard = ({ item, ViewDetails, priority, locale, isScrollActive = fal
 					</div>
 				)}
 				{item.mostseller === 1 && (
-					<div className="head text-[6px] text-background font-bold drop-shadow-md text-center w-full">
+					<div className="head text-[6px] text-[#ffffff] font-bold drop-shadow-md text-center w-full">
 						<span>{locale === 'ar' ? 'الأكثر مبيعا' : 'Most Selling'}</span>
 					</div>
 				)}
