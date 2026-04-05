@@ -2,6 +2,9 @@ const mongoose = require('mongoose');
 
 const MONGODB_URI = process.env.MONGO_URI;
 
+// NOTE: Using the standard connection string (mongodb://) instead of +srv 
+// to avoid DNS/SRV resolution issues common in some network environments.
+
 if (!MONGODB_URI) {
 	throw new Error('Please define the MONGO_URI environment variable');
 }
